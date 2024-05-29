@@ -154,8 +154,8 @@ const vim_statemachine_t *vim_lookup_statemachine(uint16_t keycode) {
 
     uint8_t vim_mods = vim_get_mods();
     uint8_t index    = VSM_INDEX(keycode);
-    bool    ctrl     = (vim_mods & MOD_BIT(KC_LCTL)) || (vim_mods & MOD_BIT(KC_RCTL));
-    bool    shift    = (vim_mods & MOD_BIT(KC_LSFT)) || (vim_mods & MOD_BIT(KC_RSFT));
+    bool    ctrl     = (vim_mods == MOD_BIT(KC_LCTL)) || (vim_mods == MOD_BIT(KC_RCTL));
+    bool    shift    = (vim_mods == MOD_BIT(KC_LSFT)) || (vim_mods == MOD_BIT(KC_RSFT));
 
     switch (vim_get_mode()) {
         case VIM_MODE_COMMAND:

@@ -82,12 +82,12 @@ bool vim_process_record_logged(uint16_t keycode, const keyrecord_t *record, uint
         return false;
     }
     if (vim_get_mode() != VIM_MODE_INSERT) {
+        if (record->event.pressed) {
+            vim_set_vim_key_state(VIM_KEY_HELD);
+        }
         if (IS_MODIFIER_KEYCODE(keycode)) {
             vim_set_mod(keycode, record->event.pressed);
             return false;
-        }
-        if (record->event.pressed) {
-            vim_set_vim_key_state(VIM_KEY_HELD);
         }
         VIM_DPRINTF("vim_key_state=%d\n", vim_get_vim_key_state());
         vim_process_command(keycode, record);
