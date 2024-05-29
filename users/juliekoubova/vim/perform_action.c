@@ -60,6 +60,16 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         case VIM_ACTION_VISUAL_MODE:
             vim_enter_visual_mode();
             return;
+        case VIM_ACTION_OPEN_LINE_DOWN:
+            vim_send(0, KC_END, VIM_SEND_TAP);
+            wait_ms(50);
+            vim_send(0, KC_ENTER, VIM_SEND_TAP);
+            return;
+        case VIM_ACTION_OPEN_LINE_UP:
+            vim_send(0, KC_HOME, VIM_SEND_TAP);
+            vim_send(0, KC_ENTER, VIM_SEND_TAP);
+            vim_send(0, KC_UP, VIM_SEND_TAP);
+            return;
         case VIM_ACTION_LINE:
             vim_send(0, KC_HOME, VIM_SEND_TAP);
             type   = VIM_SEND_TAP;
