@@ -27,6 +27,7 @@ void vim_enter_insert_mode(void) {
     vim_mods = 0;
     vim_clear_pending();
     clear_keyboard_but_mods();
+    layer_state_set(default_layer_state);
     vim_mode_changed(vim_mode);
 }
 
@@ -44,6 +45,7 @@ void vim_enter_command_mode(void) {
     vim_mods = get_mods();
     vim_clear_pending();
     clear_keyboard_but_mods();
+    layer_state_set(default_layer_state);
     vim_mode_changed(vim_mode);
 }
 
@@ -59,6 +61,7 @@ void vim_enter_visual_mode(void) {
     vim_clear_pending();
 
     clear_keyboard_but_mods();
+    layer_state_set(default_layer_state);
     vim_mode_changed(vim_mode);
 }
 
