@@ -62,13 +62,16 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             return;
         case VIM_ACTION_OPEN_LINE_DOWN:
             vim_send(0, KC_END, VIM_SEND_TAP);
-            wait_ms(50);
             vim_send(0, KC_ENTER, VIM_SEND_TAP);
             return;
         case VIM_ACTION_OPEN_LINE_UP:
             vim_send(0, KC_HOME, VIM_SEND_TAP);
             vim_send(0, KC_ENTER, VIM_SEND_TAP);
             vim_send(0, KC_UP, VIM_SEND_TAP);
+            return;
+        case VIM_ACTION_JOIN_LINE:
+            vim_send(0, KC_END, VIM_SEND_TAP);
+            vim_send(0, KC_DEL, VIM_SEND_TAP);
             return;
         case VIM_ACTION_LINE:
             vim_send(0, KC_HOME, VIM_SEND_TAP);
