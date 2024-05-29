@@ -27,6 +27,7 @@ typedef enum {
     VIM_ACTION_VISUAL_MODE,
     VIM_ACTION_OPEN_LINE_UP,
     VIM_ACTION_OPEN_LINE_DOWN,
+    VIM_ACTION_JOIN_LINE,
 
     VIM_MOD_MOVE          = 0,
     VIM_MOD_CHANGE        = 0x0100,
