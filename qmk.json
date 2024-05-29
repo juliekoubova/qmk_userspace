@@ -1,4 +1,6 @@
 {
     "userspace_version": "1.0",
-    "build_targets": []
+    "build_targets": [
+        ["keychron/q4/ansi/v2", "juliekoubova"]
+    ]
 }
