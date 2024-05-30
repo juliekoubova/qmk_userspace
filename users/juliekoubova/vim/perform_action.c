@@ -149,7 +149,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             break;
     }
 
-    if (action & (VIM_MOD_CHANGE | VIM_MOD_YANK)) {
+    if (action & (VIM_MOD_CHANGE | VIM_MOD_DELETE | VIM_MOD_YANK)) {
         mods |= MOD_LSFT;
         type = VIM_SEND_TAP;
     }
