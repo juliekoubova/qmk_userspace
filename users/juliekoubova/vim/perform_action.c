@@ -134,7 +134,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     switch (pending.keycode) {
         case KC_C:
-            action |= VIM_MOD_CHANGE;
+            action |= VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER;
             type = VIM_SEND_TAP;
             break;
         case KC_D:
@@ -149,7 +149,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             break;
     }
 
-    if (action & (VIM_MOD_CHANGE | VIM_MOD_DELETE | VIM_MOD_YANK)) {
+    if (action & (VIM_MOD_DELETE | VIM_MOD_YANK)) {
         mods |= MOD_LSFT;
         type = VIM_SEND_TAP;
     }
@@ -164,13 +164,13 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         vim_send_repeated(pending.repeat, mods, keycode, type);
     }
 
-    if (action & (VIM_MOD_DELETE | VIM_MOD_CHANGE)) {
+    if (action & VIM_MOD_DELETE) {
         vim_send(command_mod, KC_X, VIM_SEND_TAP);
     } else if (action & VIM_MOD_YANK) {
         vim_send(command_mod, KC_C, VIM_SEND_TAP);
     }
 
-    if (action & (VIM_MOD_CHANGE | VIM_MOD_INSERT_AFTER)) {
+    if (action & VIM_MOD_INSERT_AFTER) {
         vim_enter_insert_mode();
     } else if (action & VIM_MOD_VISUAL_AFTER) {
         vim_enter_visual_mode();
