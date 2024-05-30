@@ -14,8 +14,10 @@ static void vim_cancel_os_selection(void) {
 
 static void vim_set_mode(vim_mode_t mode) {
     vim_mode = mode;
+    vim_mods = mode == VIM_MODE_INSERT ? 0 : get_mods();
+    VIM_DPRINTF("entering mode=%d, capturing mods=%x\n", mode, mods);
     vim_clear_pending();
-    clear_keyboard_but_mods();
+    clear_keyboard();
     layer_state_set(default_layer_state);
     vim_mode_changed(vim_mode);
 }
@@ -30,8 +32,10 @@ void vim_enter_insert_mode(void) {
     if (vim_mode == VIM_MODE_INSERT) {
         return;
     }
-    VIM_DPRINT("Entering insert mode\n");
+    uint8_t mods = vim_mods;
+    VIM_DPRINTF("Entering insert mode, restoring mods=%x\n", mods);
     vim_set_mode(VIM_MODE_INSERT);
+    register_mods(mods);
 }
 
 void vim_enter_command_mode(void) {
@@ -41,8 +45,6 @@ void vim_enter_command_mode(void) {
     if (vim_mode == VIM_MODE_VISUAL) {
         vim_cancel_os_selection();
     }
-    vim_mods = get_mods();
-    VIM_DPRINTF("Entering command mode vim_mods=%x\n", vim_mods);
     vim_set_mode(VIM_MODE_COMMAND);
 }
 
@@ -50,7 +52,6 @@ void vim_enter_visual_mode(void) {
     if (vim_mode == VIM_MODE_VISUAL) {
         return;
     }
-    VIM_DPRINT("Entering visual mode\n");
     // don't return to insert after vim key is released
     vim_set_vim_key_state(VIM_KEY_NONE);
     vim_set_mode(VIM_MODE_VISUAL);
