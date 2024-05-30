@@ -54,12 +54,6 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         case VIM_ACTION_UNDO:
             vim_send_repeated(pending.repeat, command_mod, KC_Z, type);
             return;
-        case VIM_ACTION_COMMAND_MODE:
-            vim_enter_command_mode();
-            return;
-        case VIM_ACTION_VISUAL_MODE:
-            vim_enter_visual_mode();
-            return;
         case VIM_ACTION_OPEN_LINE_DOWN:
             vim_send(0, KC_END, VIM_SEND_TAP);
             vim_send(0, KC_ENTER, VIM_SEND_TAP);
@@ -155,21 +149,25 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             break;
     }
 
-    VIM_DPRINTF("action=%x\n", action);
+    if (action & (VIM_MOD_CHANGE | VIM_MOD_YANK)) {
+        mods |= MOD_LSFT;
+        type = VIM_SEND_TAP;
+    }
+
+    if (action & VIM_MOD_SELECT) {
+        mods |= MOD_LSFT;
+    }
+
+    if (keycode != KC_NO) {
+        // keycode is KC_NO in visual mode, where the object is the visual
+        // selection; send shifted action as a tap
+        vim_send_repeated(pending.repeat, mods, keycode, type);
+    }
+
     if (action & (VIM_MOD_DELETE | VIM_MOD_CHANGE)) {
-        if (keycode != KC_NO) {
-            // keycode is KC_NO in visual mode, where the object is the visual selection
-            // send shifted action as a tap
-            vim_send_repeated(pending.repeat, mods | MOD_LSFT, keycode, VIM_SEND_TAP);
-        }
         vim_send(command_mod, KC_X, VIM_SEND_TAP);
     } else if (action & VIM_MOD_YANK) {
-        vim_send_repeated(pending.repeat, mods | MOD_LSFT, keycode, VIM_SEND_TAP);
         vim_send(command_mod, KC_C, VIM_SEND_TAP);
-    } else if (action & VIM_MOD_SELECT) {
-        vim_send_repeated(pending.repeat, mods | MOD_LSFT, keycode, type);
-    } else {
-        vim_send_repeated(pending.repeat, mods, keycode, type);
     }
 
     if (action & (VIM_MOD_CHANGE | VIM_MOD_INSERT_AFTER)) {
