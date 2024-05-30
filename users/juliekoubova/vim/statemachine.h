@@ -28,9 +28,10 @@ typedef enum {
     VIM_ACTION_JOIN_LINE,
 
     VIM_MOD_MOVE          = 0,
-    VIM_MOD_DELETE        = 0x0200,
-    VIM_MOD_SELECT        = 0x0400,
-    VIM_MOD_YANK          = 0x0800,
+    VIM_MOD_DELETE        = 0x0100,
+    VIM_MOD_SELECT        = 0x0200,
+    VIM_MOD_YANK          = 0x0400,
+
     VIM_MOD_INSERT_AFTER  = 0x1000,
     VIM_MOD_VISUAL_AFTER  = 0x2000,
     VIM_MOD_COMMAND_AFTER = 0x4000,

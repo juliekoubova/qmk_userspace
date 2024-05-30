@@ -19,6 +19,7 @@
 #include "perform_action.h"
 #include "quantum/keycode.h"
 #include "statemachine.h"
+#include "vim_mode.h"
 #include "vim_send.h"
 #include <stdbool.h>
 
@@ -57,11 +58,13 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         case VIM_ACTION_OPEN_LINE_DOWN:
             vim_send(0, KC_END, VIM_SEND_TAP);
             vim_send(0, KC_ENTER, VIM_SEND_TAP);
+            vim_enter_insert_mode();
             return;
         case VIM_ACTION_OPEN_LINE_UP:
             vim_send(0, KC_HOME, VIM_SEND_TAP);
             vim_send(0, KC_ENTER, VIM_SEND_TAP);
             vim_send(0, KC_UP, VIM_SEND_TAP);
+            vim_enter_insert_mode();
             return;
         case VIM_ACTION_JOIN_LINE:
             vim_send(0, KC_END, VIM_SEND_TAP);
