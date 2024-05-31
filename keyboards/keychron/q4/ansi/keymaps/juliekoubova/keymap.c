@@ -80,6 +80,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                     case VIM_MODE_VISUAL:
                         rgb_matrix_set_color(index, RGB_YELLOW);
                         break;
+                    case VIM_MODE_VLINE:
+                        rgb_matrix_set_color(index, RGB_SPRINGGREEN);
+                        break;
                     default:
                         rgb_matrix_set_color(index, RGB_BLUE);
                         break;
@@ -99,9 +102,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return process_record_vim(keycode, record, QK_VIM);
 }
 
+#ifdef VIM_DEBUG
 void keyboard_post_init_user(void) {
     debug_enable = true;
 }
+#endif
 
 bool dip_switch_update_user(uint8_t index, bool active) {
     if (index == 0) {

@@ -39,24 +39,24 @@
 }
 // clang-format on
 
-static const vim_statemachine_t vim_statemachine_command[VSM_SIZE] = {
+static const vim_statemachine_t vsm_command[VSM_SIZE] = {
     // clang-format off
-    VSM(KC_A, VIM_ACTION_RIGHT | VIM_MOD_INSERT_AFTER),
+    VSM(KC_A, VIM_ACTION_RIGHT | VIM_ENTER_INSERT),
     VSM_REPEATING(KC_B, VIM_ACTION_WORD_START),
-    VSM_APPEND_FIRST_THEN_ACTION(KC_C, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER),
+    VSM_APPEND_FIRST_THEN_ACTION(KC_C, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_INSERT),
     VSM_APPEND_FIRST_THEN_ACTION(KC_D, VIM_ACTION_LINE | VIM_MOD_DELETE),
     VSM_REPEATING(KC_E, VIM_ACTION_WORD_END),
     VSM_APPEND_FIRST_THEN_ACTION(KC_G, VIM_ACTION_DOCUMENT_START),
     VSM_REPEATING(KC_H, VIM_ACTION_LEFT),
-    VSM(KC_I, VIM_MOD_INSERT_AFTER),
+    VSM(KC_I, VIM_ENTER_INSERT),
     VSM_REPEATING(KC_J, VIM_ACTION_DOWN),
     VSM_REPEATING(KC_K, VIM_ACTION_UP),
     VSM_REPEATING(KC_L, VIM_ACTION_RIGHT),
-    VSM(KC_O, VIM_ACTION_OPEN_LINE_DOWN | VIM_MOD_INSERT_AFTER),
+    VSM(KC_O, VIM_ACTION_OPEN_LINE_DOWN | VIM_ENTER_INSERT),
     VSM_REPEATING(KC_P, VIM_ACTION_PASTE),
-    VSM(KC_S, VIM_ACTION_RIGHT | VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER),
+    VSM(KC_S, VIM_ACTION_RIGHT | VIM_MOD_DELETE | VIM_ENTER_INSERT),
     VSM_REPEATING(KC_U, VIM_ACTION_UNDO),
-    VSM(KC_V, VIM_MOD_VISUAL_AFTER),
+    VSM(KC_V, VIM_ENTER_VISUAL),
     VSM_REPEATING(KC_W, VIM_ACTION_WORD_END),
     VSM_REPEATING(KC_X, VIM_ACTION_RIGHT | VIM_MOD_DELETE),
     VSM_APPEND_FIRST_THEN_ACTION(KC_Y, VIM_ACTION_LINE | VIM_MOD_YANK),
@@ -73,20 +73,20 @@ static const vim_statemachine_t vim_statemachine_command[VSM_SIZE] = {
     // clang-format on
 };
 
-static const vim_statemachine_t vim_statemachine_command_shift[VSM_SIZE] = {
+static const vim_statemachine_t vsm_command_shift[VSM_SIZE] = {
     // clang-format off
-    VSM(KC_A, VIM_ACTION_LINE_END | VIM_MOD_INSERT_AFTER),
+    VSM(KC_A, VIM_ACTION_LINE_END | VIM_ENTER_INSERT),
     VSM_REPEATING(KC_B, VIM_ACTION_WORD_START),
-    VSM(KC_C, VIM_ACTION_LINE_END | VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER),
+    VSM(KC_C, VIM_ACTION_LINE_END | VIM_MOD_DELETE | VIM_ENTER_INSERT),
     VSM(KC_D, VIM_ACTION_LINE_END | VIM_MOD_DELETE),
     VSM_REPEATING(KC_E, VIM_ACTION_WORD_END),
     VSM_REPEATING(KC_G, VIM_ACTION_DOCUMENT_END),
-    VSM(KC_I, VIM_ACTION_LINE_START | VIM_MOD_INSERT_AFTER),
+    VSM(KC_I, VIM_ACTION_LINE_START | VIM_ENTER_INSERT),
     VSM(KC_J, VIM_ACTION_JOIN_LINE),
-    VSM(KC_O, VIM_ACTION_OPEN_LINE_UP | VIM_MOD_INSERT_AFTER),
+    VSM(KC_O, VIM_ACTION_OPEN_LINE_UP | VIM_ENTER_INSERT),
     VSM_REPEATING(KC_P, VIM_ACTION_PASTE),
-    VSM(KC_S, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER),
-    VSM(KC_V, VIM_ACTION_LINE | VIM_MOD_SELECT | VIM_MOD_VISUAL_AFTER),
+    VSM(KC_S, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_INSERT),
+    VSM(KC_V, VIM_ACTION_LINE | VIM_MOD_SELECT | VIM_ENTER_VLINE),
     VSM_REPEATING(KC_W, VIM_ACTION_WORD_END),
     VSM_REPEATING(KC_X, VIM_ACTION_LEFT | VIM_MOD_DELETE),
     VSM(KC_Y, VIM_ACTION_LINE | VIM_MOD_YANK),
@@ -95,16 +95,16 @@ static const vim_statemachine_t vim_statemachine_command_shift[VSM_SIZE] = {
     // clang-format on
 };
 
-static const vim_statemachine_t vim_statemachine_command_ctrl[VSM_SIZE] = {
+static const vim_statemachine_t vsm_command_ctrl[VSM_SIZE] = {
     VSM_REPEATING(KC_B, VIM_ACTION_PAGE_UP),
     VSM_REPEATING(KC_F, VIM_ACTION_PAGE_DOWN),
 };
 
-static const vim_statemachine_t vim_statemachine_visual[VSM_SIZE] = {
+static const vim_statemachine_t vsm_visual[VSM_SIZE] = {
     // clang-format off
     VSM_REPEATING(KC_B, VIM_ACTION_WORD_START | VIM_MOD_SELECT),
-    VSM(KC_C, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER),
-    VSM(KC_D, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_MOD_COMMAND_AFTER),
+    VSM(KC_C, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
+    VSM(KC_D, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
     VSM_REPEATING(KC_E, VIM_ACTION_WORD_END | VIM_MOD_SELECT),
     VSM_APPEND_FIRST_THEN_ACTION(KC_G, VIM_ACTION_DOCUMENT_START | VIM_MOD_SELECT),
     VSM_REPEATING(KC_H, VIM_ACTION_LEFT | VIM_MOD_SELECT),
@@ -112,11 +112,11 @@ static const vim_statemachine_t vim_statemachine_visual[VSM_SIZE] = {
     VSM_REPEATING(KC_K, VIM_ACTION_UP | VIM_MOD_SELECT),
     VSM_REPEATING(KC_L, VIM_ACTION_RIGHT | VIM_MOD_SELECT),
     VSM_REPEATING(KC_P, VIM_ACTION_PASTE),
-    VSM(KC_S, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER),
-    VSM(KC_V, VIM_MOD_COMMAND_AFTER),
+    VSM(KC_S, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
+    VSM(KC_V, VIM_ENTER_COMMAND),
     VSM_REPEATING(KC_W, VIM_ACTION_WORD_END | VIM_MOD_SELECT),
-    VSM(KC_X, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_MOD_COMMAND_AFTER),
-    VSM(KC_Y, VIM_ACTION_SELECTION | VIM_MOD_YANK | VIM_MOD_COMMAND_AFTER),
+    VSM(KC_X, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
+    VSM(KC_Y, VIM_ACTION_SELECTION | VIM_MOD_YANK | VIM_ENTER_COMMAND),
     VSM_APPEND(KC_1),
     VSM_APPEND(KC_2),
     VSM_APPEND(KC_3),
@@ -127,21 +127,58 @@ static const vim_statemachine_t vim_statemachine_visual[VSM_SIZE] = {
     VSM_APPEND(KC_9),
     VSM_APPEND(KC_9),
     VSM_APPEND_IF_PENDING(KC_0, VIM_ACTION_LINE_START | VIM_MOD_SELECT),
-    VSM(KC_ESCAPE, VIM_MOD_COMMAND_AFTER),
+    VSM(KC_ESCAPE, VIM_ENTER_COMMAND),
     // clang-format on
 };
 
-static const vim_statemachine_t vim_statemachine_visual_shift[VSM_SIZE] = {
+static const vim_statemachine_t vsm_visual_shift[VSM_SIZE] = {
     // clang-format off
-    VSM(KC_C, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER),
-    VSM(KC_D, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_MOD_COMMAND_AFTER),
-    VSM(KC_V, VIM_ACTION_LINE | VIM_MOD_SELECT),
-    VSM(KC_X, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_MOD_COMMAND_AFTER),
-    VSM(KC_Y, VIM_ACTION_LINE | VIM_MOD_YANK | VIM_MOD_COMMAND_AFTER),
+    VSM(KC_C, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_INSERT),
+    VSM(KC_D, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
+    VSM(KC_V, VIM_ACTION_LINE | VIM_MOD_SELECT | VIM_ENTER_VLINE),
+    VSM(KC_X, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
+    VSM(KC_Y, VIM_ACTION_LINE | VIM_MOD_YANK | VIM_ENTER_COMMAND),
     VSM(KC_4, VIM_ACTION_LINE_END | VIM_MOD_SELECT),
     VSM(KC_6, VIM_ACTION_LINE_START | VIM_MOD_SELECT),
     // clang-format on
 };
+
+static const vim_statemachine_t vsm_vline[VSM_SIZE] = {
+    // clang-format off
+    VSM(KC_C, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
+    VSM(KC_D, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
+    VSM_APPEND_FIRST_THEN_ACTION(KC_G, VIM_ACTION_DOCUMENT_START | VIM_MOD_SELECT),
+    VSM_REPEATING(KC_J, VIM_ACTION_DOWN | VIM_MOD_SELECT),
+    VSM_REPEATING(KC_K, VIM_ACTION_UP | VIM_MOD_SELECT),
+    VSM_REPEATING(KC_P, VIM_ACTION_PASTE),
+    VSM(KC_S, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
+    VSM(KC_V, VIM_ENTER_VISUAL),
+    VSM(KC_X, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
+    VSM(KC_Y, VIM_ACTION_SELECTION | VIM_MOD_YANK | VIM_ENTER_COMMAND),
+    VSM_APPEND(KC_1),
+    VSM_APPEND(KC_2),
+    VSM_APPEND(KC_3),
+    VSM_APPEND(KC_4),
+    VSM_APPEND(KC_5),
+    VSM_APPEND(KC_6),
+    VSM_APPEND(KC_7),
+    VSM_APPEND(KC_9),
+    VSM_APPEND(KC_9),
+    VSM_APPEND(KC_0),
+    VSM(KC_ESCAPE, VIM_ENTER_COMMAND),
+    // clang-format on
+};
+
+static const vim_statemachine_t vsm_vline_shift[VSM_SIZE] = {
+    // clang-format off
+    VSM(KC_C, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_INSERT),
+    VSM(KC_D, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
+    VSM(KC_V, VIM_ACTION_LINE | VIM_MOD_SELECT),
+    VSM(KC_X, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
+    VSM(KC_Y, VIM_ACTION_LINE | VIM_MOD_YANK | VIM_ENTER_COMMAND),
+    // clang-format on
+};
+
 
 #undef VSM
 #undef VSM_DEBUG
@@ -163,21 +200,27 @@ const vim_statemachine_t *vim_lookup_statemachine(uint16_t keycode) {
     switch (vim_get_mode()) {
         case VIM_MODE_COMMAND:
             if (ctrl) {
-                return &vim_statemachine_command_ctrl[index];
+                return &vsm_command_ctrl[index];
             } else if (shift) {
-                return &vim_statemachine_command_shift[index];
+                return &vsm_command_shift[index];
             } else if (vim_mods == 0) {
-                return &vim_statemachine_command[index];
+                return &vsm_command[index];
             }
             break;
         case VIM_MODE_VISUAL:
             if (vim_mods == 0) {
-                return &vim_statemachine_visual[index];
+                return &vsm_visual[index];
             } else if (shift) {
-                return &vim_statemachine_visual_shift[index];
+                return &vsm_visual_shift[index];
             }
             break;
-
+        case VIM_MODE_VLINE:
+            if (vim_mods == 0) {
+                return &vsm_vline[index];
+            } else if (shift) {
+                return &vsm_vline_shift[index];
+            }
+            break;
         default:
             break;
     }
