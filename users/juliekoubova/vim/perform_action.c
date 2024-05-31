@@ -72,8 +72,9 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             return;
         case VIM_ACTION_LINE:
             vim_send(0, KC_HOME, VIM_SEND_TAP);
-            type   = VIM_SEND_TAP;
-            action = (action & VIM_MASK_MOD) | VIM_ACTION_LINE_END;
+            type = VIM_SEND_TAP;
+            action &= ~VIM_MASK_ACTION;
+            action |= VIM_ACTION_LINE_END;
             break;
         default:
             break;
@@ -137,7 +138,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     switch (pending.keycode) {
         case KC_C:
-            action |= VIM_MOD_DELETE | VIM_MOD_INSERT_AFTER;
+            action |= VIM_MOD_DELETE | VIM_ENTER_INSERT;
             type = VIM_SEND_TAP;
             break;
         case KC_D:
@@ -167,17 +168,18 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         vim_send_repeated(pending.repeat, mods, keycode, type);
     }
 
+    if (vim_get_mode() == VIM_MODE_VLINE) {
+        if (type == VIM_SEND_TAP || type == VIM_SEND_RELEASE) {
+            vim_send(MOD_LSFT, KC_END, VIM_SEND_TAP);
+        }
+    }
+
     if (action & VIM_MOD_DELETE) {
         vim_send(command_mod, KC_X, VIM_SEND_TAP);
     } else if (action & VIM_MOD_YANK) {
         vim_send(command_mod, KC_C, VIM_SEND_TAP);
     }
 
-    if (action & VIM_MOD_INSERT_AFTER) {
-        vim_enter_insert_mode();
-    } else if (action & VIM_MOD_VISUAL_AFTER) {
-        vim_enter_visual_mode();
-    } else if (action & VIM_MOD_COMMAND_AFTER) {
-        vim_enter_command_mode();
-    }
+    VIM_DPRINTF("vim_perform_action %x\n", action);
+    vim_enter_mode(VIM_MODE_FROM_ACTION(action));
 }

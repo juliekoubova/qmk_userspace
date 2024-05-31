@@ -2,8 +2,11 @@
 #include "debug.h"
 #include "vim_mode.h"
 
+#define VIM_MODE_ACTION(m) (m << 12)
+#define VIM_MODE_FROM_ACTION(a) ((a >> 12) & 0xf)
+
 typedef enum {
-    VIM_ACTION_NONE,
+    VIM_ACTION_NONE = 0,
 
     VIM_ACTION_LEFT,
     VIM_ACTION_DOWN,
@@ -27,17 +30,18 @@ typedef enum {
     VIM_ACTION_OPEN_LINE_DOWN,
     VIM_ACTION_JOIN_LINE,
 
-    VIM_MOD_MOVE          = 0,
-    VIM_MOD_DELETE        = 0x0100,
-    VIM_MOD_SELECT        = 0x0200,
-    VIM_MOD_YANK          = 0x0400,
+    VIM_MOD_DELETE = 0x0100,
+    VIM_MOD_SELECT = 0x0200,
+    VIM_MOD_YANK   = 0x0400,
 
-    VIM_MOD_INSERT_AFTER  = 0x1000,
-    VIM_MOD_VISUAL_AFTER  = 0x2000,
-    VIM_MOD_COMMAND_AFTER = 0x4000,
+    VIM_ENTER_INSERT  = VIM_MODE_ACTION(VIM_MODE_INSERT),
+    VIM_ENTER_COMMAND = VIM_MODE_ACTION(VIM_MODE_COMMAND),
+    VIM_ENTER_VISUAL  = VIM_MODE_ACTION(VIM_MODE_VISUAL),
+    VIM_ENTER_VLINE  = VIM_MODE_ACTION(VIM_MODE_VLINE),
 
     VIM_MASK_ACTION = 0x00ff,
-    VIM_MASK_MOD    = 0xff00,
+    VIM_MASK_MOD    = 0x0f00,
+    VIM_MASK_MODE   = 0xf000
 } vim_action_t;
 
 typedef struct {

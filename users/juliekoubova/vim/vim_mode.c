@@ -15,7 +15,7 @@ static void vim_cancel_os_selection(void) {
 static void vim_set_mode(vim_mode_t mode) {
     vim_mode = mode;
     vim_mods = mode == VIM_MODE_INSERT ? 0 : get_mods();
-    VIM_DPRINTF("entering mode=%d, capturing mods=%x\n", mode, mods);
+    VIM_DPRINTF("entering mode=%d, capturing mods=%x\n", mode, vim_mods);
     vim_clear_pending();
     clear_keyboard();
     layer_state_set(default_layer_state);
@@ -33,18 +33,23 @@ void vim_enter_insert_mode(void) {
         return;
     }
     uint8_t mods = vim_mods;
-    VIM_DPRINTF("Entering insert mode, restoring mods=%x\n", mods);
+    VIM_DPRINTF("entering INSERT mode, restoring mods=%x\n", mods);
     vim_set_mode(VIM_MODE_INSERT);
     register_mods(mods);
 }
 
 void vim_enter_command_mode(void) {
-    if (vim_mode == VIM_MODE_COMMAND) {
-        return;
+    switch (vim_mode) {
+        case VIM_MODE_COMMAND:
+            return;
+        case VIM_MODE_VISUAL:
+        case VIM_MODE_VLINE:
+            vim_cancel_os_selection();
+            break;
+        default:
+            break;
     }
-    if (vim_mode == VIM_MODE_VISUAL) {
-        vim_cancel_os_selection();
-    }
+    VIM_DPRINT("entering COMMAND mode\n");
     vim_set_mode(VIM_MODE_COMMAND);
 }
 
@@ -52,9 +57,38 @@ void vim_enter_visual_mode(void) {
     if (vim_mode == VIM_MODE_VISUAL) {
         return;
     }
+    VIM_DPRINT("entering VISUAL mode\n");
     // don't return to insert after vim key is released
     vim_set_vim_key_state(VIM_KEY_NONE);
     vim_set_mode(VIM_MODE_VISUAL);
+}
+
+void vim_enter_vline_mode(void) {
+    if (vim_mode == VIM_MODE_VLINE) {
+        return;
+    }
+    VIM_DPRINT("entering V-LINE mode\n");
+    // don't return to insert after vim key is released
+    vim_set_vim_key_state(VIM_KEY_NONE);
+    vim_set_mode(VIM_MODE_VLINE);
+}
+
+void vim_enter_mode(vim_mode_t mode) {
+    VIM_DPRINTF("vim_enter_mode: %d\n", mode);
+    switch (mode) {
+        case VIM_MODE_INSERT:
+            vim_enter_insert_mode();
+            break;
+        case VIM_MODE_VISUAL:
+            vim_enter_visual_mode();
+            break;
+        case VIM_MODE_VLINE:
+            vim_enter_vline_mode();
+            break;
+        case VIM_MODE_COMMAND:
+            vim_enter_command_mode();
+            break;
+    }
 }
 
 void vim_set_mod(uint16_t keycode, bool pressed) {
