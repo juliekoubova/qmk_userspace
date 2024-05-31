@@ -82,7 +82,7 @@ bool vim_process_record_logged(uint16_t keycode, const keyrecord_t *record, uint
         return false;
     }
     if (vim_get_mode() != VIM_MODE_INSERT) {
-        if (record->event.pressed) {
+        if (vim_get_vim_key_state() != VIM_KEY_NONE && record->event.pressed) {
             vim_set_vim_key_state(VIM_KEY_HELD);
         }
         if (IS_MODIFIER_KEYCODE(keycode)) {
