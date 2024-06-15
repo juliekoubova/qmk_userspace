@@ -41,7 +41,7 @@ static vline_t  vline      = VLINE_NONE;
 static uint16_t vline_time = 0;
 
 #ifndef VIM_VLINE_TIMEOUT
-#    define VIM_VLINE_TIMEOUT 300
+#    define VIM_VLINE_TIMEOUT 700
 #endif
 
 void vim_vline_entered(void) {

@@ -121,7 +121,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void housekeeping_task_user() {
-    //vim_task();
+    vim_task();
 }
 
 #ifdef VIM_DEBUG
