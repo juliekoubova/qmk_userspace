@@ -20,3 +20,4 @@
 #include "vim_send.h"
 
 void vim_perform_action(vim_action_t, vim_send_type_t);
+void vim_clear_vline_direction(void);

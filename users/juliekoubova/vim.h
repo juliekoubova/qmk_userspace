@@ -23,4 +23,4 @@
 bool process_record_vim(uint16_t keycode, const keyrecord_t *record, uint16_t vim_keycode);
 bool vim_is_active_key(uint16_t keycode);
 void vim_set_apple(bool apple);
-
+void vim_task(void);

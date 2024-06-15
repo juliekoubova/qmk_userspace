@@ -34,7 +34,13 @@ static uint8_t line_mods  = 0;
 static uint8_t line_start = KC_HOME;
 static uint8_t line_end   = KC_END;
 
-typedef enum { DIRECTION_NONE, DIRECTION_START, DIRECTION_END } direction_t;
+typedef enum { VLINE_NONE, VLINE_UP, VLINE_DOWN } vline_t;
+
+static vline_t vline = VLINE_NONE;
+
+void vim_clear_vline_direction(void) {
+    vline = VLINE_NONE;
+}
 
 void vim_set_apple(bool apple) {
     VIM_DPRINTF("apple=%d\n", apple);
@@ -60,6 +66,14 @@ static void vim_send_repeated(int8_t repeat, uint8_t mods, uint16_t keycode, vim
         repeat--;
     }
     vim_send(mods, keycode, type);
+}
+
+static void vim_vline_start(vline_t direction) {
+    uint8_t first  = direction == VLINE_UP ? line_end : line_start;
+    uint8_t second = direction == VLINE_UP ? line_start : line_end;
+    vim_send(line_mods, first, VIM_SEND_TAP);
+    vim_send(MOD_LSFT | line_mods, second, VIM_SEND_TAP);
+    vline = direction;
 }
 
 void vim_perform_action(vim_action_t action, vim_send_type_t type) {
@@ -96,9 +110,9 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             break;
     }
 
-    uint16_t    keycode   = KC_NO;
-    uint8_t     mods      = 0;
-    direction_t direction = DIRECTION_NONE;
+    uint16_t keycode    = KC_NO;
+    uint8_t  mods       = 0;
+    vline_t  next_vline = VLINE_NONE;
 
     if (action == (VIM_MOD_DELETE | VIM_ACTION_LEFT)) {
         keycode = KC_BSPC;
@@ -109,20 +123,18 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     } else {
         switch (action & VIM_MASK_ACTION) {
             case VIM_ACTION_LEFT:
-                keycode   = KC_LEFT;
-                direction = DIRECTION_START;
+                keycode = KC_LEFT;
                 break;
             case VIM_ACTION_DOWN:
-                keycode   = KC_DOWN;
-                direction = DIRECTION_END;
+                keycode    = KC_DOWN;
+                next_vline = VLINE_DOWN;
                 break;
             case VIM_ACTION_UP:
-                keycode   = KC_UP;
-                direction = DIRECTION_START;
+                keycode    = KC_UP;
+                next_vline = VLINE_UP;
                 break;
             case VIM_ACTION_RIGHT:
-                keycode   = KC_RIGHT;
-                direction = DIRECTION_END;
+                keycode = KC_RIGHT;
                 break;
             case VIM_ACTION_LINE_START:
                 keycode = line_start;
@@ -141,18 +153,22 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
                 mods    = word_mods;
                 break;
             case VIM_ACTION_DOCUMENT_START:
-                keycode = document_start;
-                mods    = document_mods;
+                keycode    = document_start;
+                mods       = document_mods;
+                next_vline = VLINE_UP;
                 break;
             case VIM_ACTION_DOCUMENT_END:
-                keycode = document_end;
-                mods    = document_mods;
+                keycode    = document_end;
+                mods       = document_mods;
+                next_vline = VLINE_DOWN;
                 break;
             case VIM_ACTION_PAGE_UP:
-                keycode = KC_PAGE_UP;
+                keycode    = KC_PAGE_UP;
+                next_vline = VLINE_UP;
                 break;
             case VIM_ACTION_PAGE_DOWN:
-                keycode = KC_PAGE_DOWN;
+                keycode    = KC_PAGE_DOWN;
+                next_vline = VLINE_DOWN;
                 break;
             default:
                 break;
@@ -185,6 +201,14 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         mods |= MOD_LSFT;
     }
 
+    if (vim_get_mode() == VIM_MODE_VLINE) {
+        // if we are still in VLINE_NONE, begin the full line selection based
+        // on the direction we're going
+        if (vline == VLINE_NONE && next_vline != VLINE_NONE) {
+            vim_vline_start(next_vline);
+        }
+    }
+
     if (keycode != KC_NO) {
         // keycode is KC_NO in visual mode, where the object is the visual
         // selection; send shifted action as a tap
@@ -192,9 +216,12 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     }
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
-        if (type == VIM_SEND_TAP || type == VIM_SEND_RELEASE) {
-            uint8_t kc = direction == DIRECTION_START ? line_start : line_end;
-            vim_send(MOD_LSFT | line_mods, kc, VIM_SEND_TAP);
+        if (type == VIM_SEND_RELEASE || type == VIM_SEND_TAP) {
+            if (vline == VLINE_UP) {
+                vim_send(MOD_LSFT | line_mods, line_start, VIM_SEND_TAP);
+            } else if (vline == VLINE_DOWN) {
+                vim_send(MOD_LSFT | line_mods, line_end, VIM_SEND_TAP);
+            }
         }
     }
 

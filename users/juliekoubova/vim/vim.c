@@ -103,3 +103,6 @@ bool process_record_vim(uint16_t keycode, const keyrecord_t *record, uint16_t vi
     VIM_DPRINT("\n");
     return result;
 }
+
+void vim_task(void) {
+}
