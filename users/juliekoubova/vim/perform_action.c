@@ -34,6 +34,8 @@ static uint8_t line_mods  = 0;
 static uint8_t line_start = KC_HOME;
 static uint8_t line_end   = KC_END;
 
+typedef enum { DIRECTION_NONE, DIRECTION_START, DIRECTION_END } direction_t;
+
 void vim_set_apple(bool apple) {
     VIM_DPRINTF("apple=%d\n", apple);
     command_mods = apple ? MOD_LGUI : MOD_LCTL;
@@ -94,8 +96,9 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             break;
     }
 
-    uint16_t keycode = KC_NO;
-    uint8_t  mods    = 0;
+    uint16_t    keycode   = KC_NO;
+    uint8_t     mods      = 0;
+    direction_t direction = DIRECTION_NONE;
 
     if (action == (VIM_MOD_DELETE | VIM_ACTION_LEFT)) {
         keycode = KC_BSPC;
@@ -106,16 +109,20 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     } else {
         switch (action & VIM_MASK_ACTION) {
             case VIM_ACTION_LEFT:
-                keycode = KC_LEFT;
+                keycode   = KC_LEFT;
+                direction = DIRECTION_START;
                 break;
             case VIM_ACTION_DOWN:
-                keycode = KC_DOWN;
+                keycode   = KC_DOWN;
+                direction = DIRECTION_END;
                 break;
             case VIM_ACTION_UP:
-                keycode = KC_UP;
+                keycode   = KC_UP;
+                direction = DIRECTION_START;
                 break;
             case VIM_ACTION_RIGHT:
-                keycode = KC_RIGHT;
+                keycode   = KC_RIGHT;
+                direction = DIRECTION_END;
                 break;
             case VIM_ACTION_LINE_START:
                 keycode = line_start;
@@ -186,7 +193,8 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
         if (type == VIM_SEND_TAP || type == VIM_SEND_RELEASE) {
-            vim_send(MOD_LSFT | line_mods, line_end, VIM_SEND_TAP);
+            uint8_t kc = direction == DIRECTION_START ? line_start : line_end;
+            vim_send(MOD_LSFT | line_mods, kc, VIM_SEND_TAP);
         }
     }
 
