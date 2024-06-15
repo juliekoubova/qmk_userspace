@@ -37,33 +37,23 @@ static uint8_t line_end   = KC_END;
 
 typedef enum { VLINE_NONE, VLINE_UP, VLINE_DOWN } vline_t;
 
-static vline_t  vline      = VLINE_NONE;
-static uint16_t vline_time = 0;
-
-#ifndef VIM_VLINE_TIMEOUT
-#    define VIM_VLINE_TIMEOUT 700
-#endif
-
-void vim_vline_entered(void) {
-    vline = VLINE_NONE;
-    vline_time = timer_read();
-}
+static vline_t vline = VLINE_NONE;
 
 static void vim_vline_start(vline_t direction) {
     uint8_t first  = direction == VLINE_UP ? line_end : line_start;
     uint8_t second = direction == VLINE_UP ? line_start : line_end;
     vim_send(line_mods, first, VIM_SEND_TAP);
     vim_send(MOD_LSFT | line_mods, second, VIM_SEND_TAP);
-    vline = direction;
 }
 
-void vim_vline_task(void) {
-    if (vim_get_mode() == VIM_MODE_VLINE && vline == VLINE_NONE) {
-        if (timer_elapsed(vline_time) > VIM_VLINE_TIMEOUT) {
-            vim_vline_start(VLINE_DOWN);
-        }
-    }
+void vim_vline_entered(void) {
+    // begin vline mode with the assumption we're gonna go down, but
+    // keep the state as VLINE_NONE so we re-select this line if we end up
+    // in the opposite direction
+    vim_vline_start(VLINE_DOWN);
+    vline = VLINE_NONE;
 }
+
 
 void vim_set_apple(bool apple) {
     VIM_DPRINTF("apple=%d\n", apple);
@@ -217,10 +207,11 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     }
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
-        // if we are still in VLINE_NONE, begin the full line selection based
-        // on the direction we're going
+        // if we haven't started moving in either direction yet, re-select the
+        // current line based on the direction we're going
         if (vline == VLINE_NONE && next_vline != VLINE_NONE) {
             vim_vline_start(next_vline);
+            vline = next_vline;
         }
     }
 
@@ -231,6 +222,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     }
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
+        // select the full line after we release the up/down key, or after a tap
         if (type == VIM_SEND_RELEASE || type == VIM_SEND_TAP) {
             if (vline == VLINE_UP) {
                 vim_send(MOD_LSFT | line_mods, line_start, VIM_SEND_TAP);

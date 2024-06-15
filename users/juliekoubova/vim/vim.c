@@ -105,5 +105,4 @@ bool process_record_vim(uint16_t keycode, const keyrecord_t *record, uint16_t vi
 }
 
 void vim_task(void) {
-    vim_vline_task();
 }
