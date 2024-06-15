@@ -18,6 +18,7 @@
 #include "pending.h"
 #include "perform_action.h"
 #include "quantum/keycode.h"
+#include "platforms/timer.h"
 #include "statemachine.h"
 #include "vim_mode.h"
 #include "vim_send.h"
@@ -36,10 +37,32 @@ static uint8_t line_end   = KC_END;
 
 typedef enum { VLINE_NONE, VLINE_UP, VLINE_DOWN } vline_t;
 
-static vline_t vline = VLINE_NONE;
+static vline_t  vline      = VLINE_NONE;
+static uint16_t vline_time = 0;
 
-void vim_clear_vline_direction(void) {
+#ifndef VIM_VLINE_TIMEOUT
+#    define VIM_VLINE_TIMEOUT 300
+#endif
+
+void vim_vline_entered(void) {
     vline = VLINE_NONE;
+    vline_time = timer_read();
+}
+
+static void vim_vline_start(vline_t direction) {
+    uint8_t first  = direction == VLINE_UP ? line_end : line_start;
+    uint8_t second = direction == VLINE_UP ? line_start : line_end;
+    vim_send(line_mods, first, VIM_SEND_TAP);
+    vim_send(MOD_LSFT | line_mods, second, VIM_SEND_TAP);
+    vline = direction;
+}
+
+void vim_vline_task(void) {
+    if (vim_get_mode() == VIM_MODE_VLINE && vline == VLINE_NONE) {
+        if (timer_elapsed(vline_time) > VIM_VLINE_TIMEOUT) {
+            vim_vline_start(VLINE_DOWN);
+        }
+    }
 }
 
 void vim_set_apple(bool apple) {
@@ -66,14 +89,6 @@ static void vim_send_repeated(int8_t repeat, uint8_t mods, uint16_t keycode, vim
         repeat--;
     }
     vim_send(mods, keycode, type);
-}
-
-static void vim_vline_start(vline_t direction) {
-    uint8_t first  = direction == VLINE_UP ? line_end : line_start;
-    uint8_t second = direction == VLINE_UP ? line_start : line_end;
-    vim_send(line_mods, first, VIM_SEND_TAP);
-    vim_send(MOD_LSFT | line_mods, second, VIM_SEND_TAP);
-    vline = direction;
 }
 
 void vim_perform_action(vim_action_t action, vim_send_type_t type) {

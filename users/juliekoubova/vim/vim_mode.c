@@ -87,7 +87,7 @@ void vim_enter_vline_mode(void) {
     VIM_DPRINT("entering V-LINE mode\n");
     // don't return to insert after vim key is released
     vim_set_vim_key_state(VIM_KEY_NONE);
-    vim_clear_vline_direction();
+    vim_vline_entered();
     vim_set_mode(VIM_MODE_VLINE);
 }
 
