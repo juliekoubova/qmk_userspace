@@ -23,15 +23,29 @@
 #include "vim_send.h"
 #include <stdbool.h>
 
-static uint8_t command_mod      = MOD_LCTL;
-static uint8_t document_nav_mod = MOD_LCTL;
-static uint8_t word_nav_mod     = MOD_LCTL;
+static uint8_t command_mods = MOD_LCTL;
+static uint8_t word_mods    = MOD_LCTL;
+
+static uint8_t document_mods  = MOD_LCTL;
+static uint8_t document_start = KC_HOME;
+static uint8_t document_end   = KC_END;
+
+static uint8_t line_mods  = 0;
+static uint8_t line_start = KC_HOME;
+static uint8_t line_end   = KC_END;
 
 void vim_set_apple(bool apple) {
     VIM_DPRINTF("apple=%d\n", apple);
-    command_mod      = apple ? MOD_LGUI : MOD_LCTL;
-    document_nav_mod = apple ? MOD_LGUI : MOD_LCTL;
-    word_nav_mod     = apple ? MOD_LALT : MOD_LCTL;
+    command_mods = apple ? MOD_LGUI : MOD_LCTL;
+    word_mods    = apple ? MOD_LALT : MOD_LCTL;
+
+    document_mods  = apple ? MOD_LGUI : MOD_LCTL;
+    document_start = apple ? KC_UP : KC_HOME;
+    document_end   = apple ? KC_DOWN : KC_END;
+
+    line_mods  = apple ? MOD_LGUI : 0;
+    line_start = apple ? KC_LEFT : KC_HOME;
+    line_end   = apple ? KC_RIGHT : KC_END;
 }
 
 static void vim_send_repeated(int8_t repeat, uint8_t mods, uint16_t keycode, vim_send_type_t type) {
@@ -50,28 +64,28 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     vim_pending_t pending = vim_clear_pending();
     switch (action & VIM_MASK_ACTION) {
         case VIM_ACTION_PASTE:
-            vim_send_repeated(pending.repeat, command_mod, KC_V, type);
+            vim_send_repeated(pending.repeat, command_mods, KC_V, type);
             return;
         case VIM_ACTION_UNDO:
-            vim_send_repeated(pending.repeat, command_mod, KC_Z, type);
+            vim_send_repeated(pending.repeat, command_mods, KC_Z, type);
             return;
         case VIM_ACTION_OPEN_LINE_DOWN:
-            vim_send(0, KC_END, VIM_SEND_TAP);
+            vim_send(line_mods, line_end, VIM_SEND_TAP);
             vim_send(0, KC_ENTER, VIM_SEND_TAP);
             vim_enter_insert_mode();
             return;
         case VIM_ACTION_OPEN_LINE_UP:
-            vim_send(0, KC_HOME, VIM_SEND_TAP);
+            vim_send(line_mods, line_start, VIM_SEND_TAP);
             vim_send(0, KC_ENTER, VIM_SEND_TAP);
             vim_send(0, KC_UP, VIM_SEND_TAP);
             vim_enter_insert_mode();
             return;
         case VIM_ACTION_JOIN_LINE:
-            vim_send(0, KC_END, VIM_SEND_TAP);
+            vim_send(line_mods, line_end, VIM_SEND_TAP);
             vim_send(0, KC_DEL, VIM_SEND_TAP);
             return;
         case VIM_ACTION_LINE:
-            vim_send(0, KC_HOME, VIM_SEND_TAP);
+            vim_send(line_mods, line_start, VIM_SEND_TAP);
             type = VIM_SEND_TAP;
             action &= ~VIM_MASK_ACTION;
             action |= VIM_ACTION_LINE_END;
@@ -104,26 +118,28 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
                 keycode = KC_RIGHT;
                 break;
             case VIM_ACTION_LINE_START:
-                keycode = KC_HOME;
+                keycode = line_start;
+                mods    = line_mods;
                 break;
             case VIM_ACTION_LINE_END:
-                keycode = KC_END;
+                keycode = line_end;
+                mods    = line_mods;
                 break;
             case VIM_ACTION_WORD_START:
                 keycode = KC_LEFT;
-                mods    = word_nav_mod;
+                mods    = word_mods;
                 break;
             case VIM_ACTION_WORD_END:
                 keycode = KC_RIGHT;
-                mods    = word_nav_mod;
+                mods    = word_mods;
                 break;
             case VIM_ACTION_DOCUMENT_START:
-                keycode = KC_HOME;
-                mods    = document_nav_mod;
+                keycode = document_start;
+                mods    = document_mods;
                 break;
             case VIM_ACTION_DOCUMENT_END:
-                keycode = KC_END;
-                mods    = document_nav_mod;
+                keycode = document_end;
+                mods    = document_mods;
                 break;
             case VIM_ACTION_PAGE_UP:
                 keycode = KC_PAGE_UP;
@@ -170,14 +186,14 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
         if (type == VIM_SEND_TAP || type == VIM_SEND_RELEASE) {
-            vim_send(MOD_LSFT, KC_END, VIM_SEND_TAP);
+            vim_send(MOD_LSFT | line_mods, line_end, VIM_SEND_TAP);
         }
     }
 
     if (action & VIM_MOD_DELETE) {
-        vim_send(command_mod, KC_X, VIM_SEND_TAP);
+        vim_send(command_mods, KC_X, VIM_SEND_TAP);
     } else if (action & VIM_MOD_YANK) {
-        vim_send(command_mod, KC_C, VIM_SEND_TAP);
+        vim_send(command_mods, KC_C, VIM_SEND_TAP);
     }
 
     VIM_DPRINTF("vim_perform_action %x\n", action);
