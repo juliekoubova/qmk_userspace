@@ -35,25 +35,29 @@ static uint8_t line_mods  = 0;
 static uint8_t line_start = KC_HOME;
 static uint8_t line_end   = KC_END;
 
-typedef enum { VLINE_NONE, VLINE_UP, VLINE_DOWN } vline_t;
+typedef enum { VLINE_DOWN_ASSUMED, VLINE_DOWN, VLINE_UP } vline_t;
 
-static vline_t vline = VLINE_NONE;
+static vline_t vline = VLINE_DOWN_ASSUMED;
 
+// if we start vline mode going up, we start the selection from the end of the
+// line and select all the way to the start of line after each key release. that
+// way, when we get to the beginning of the document, we select the first line
+// completely. and vice versa for going down.
+// if we first go in one direction, then decide to go in the other and
+// overshoot the original starting point, this will stop working, but hey, at
+// least we tried.
 static void vim_vline_start(vline_t direction) {
     uint8_t first  = direction == VLINE_UP ? line_end : line_start;
     uint8_t second = direction == VLINE_UP ? line_start : line_end;
     vim_send(line_mods, first, VIM_SEND_TAP);
     vim_send(MOD_LSFT | line_mods, second, VIM_SEND_TAP);
+    vline = direction;
 }
 
 void vim_vline_entered(void) {
-    // begin vline mode with the assumption we're gonna go down, but
-    // keep the state as VLINE_NONE so we re-select this line if we end up
-    // in the opposite direction
-    vim_vline_start(VLINE_DOWN);
-    vline = VLINE_NONE;
+    // begin vline mode assuming we're gonna go down
+    vim_vline_start(VLINE_DOWN_ASSUMED);
 }
-
 
 void vim_set_apple(bool apple) {
     VIM_DPRINTF("apple=%d\n", apple);
@@ -117,7 +121,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     uint16_t keycode    = KC_NO;
     uint8_t  mods       = 0;
-    vline_t  next_vline = VLINE_NONE;
+    vline_t  next_vline = VLINE_DOWN_ASSUMED;
 
     if (action == (VIM_MOD_DELETE | VIM_ACTION_LEFT)) {
         keycode = KC_BSPC;
@@ -207,10 +211,12 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     }
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
-        // if we haven't started moving in either direction yet, re-select the
-        // current line based on the direction we're going
-        if (vline == VLINE_NONE && next_vline != VLINE_NONE) {
-            vim_vline_start(next_vline);
+        // if we start moving up, re-select the first line, which has been
+        // selected with the (now disproven) assumption that we're gonna go down
+        if (vline == VLINE_DOWN_ASSUMED && next_vline != VLINE_DOWN_ASSUMED) {
+            if (next_vline == VLINE_UP) {
+                vim_vline_start(VLINE_UP);
+            }
             vline = next_vline;
         }
     }
