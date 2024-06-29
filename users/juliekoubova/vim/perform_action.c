@@ -22,6 +22,7 @@
 #include "statemachine.h"
 #include "vim_mode.h"
 #include "vim_send.h"
+#include <stddef.h>
 #include <stdbool.h>
 
 static uint16_t command_mods   = QK_LCTL;
@@ -65,11 +66,15 @@ void vim_set_apple(bool apple) {
     line_end       = apple ? LGUI(KC_RIGHT) : KC_END;
 }
 
+static void vim_send_multi(const uint16_t* code16s, size_t count) {
+    for (size_t i = 0; i < count; i++) {
+        vim_send(code16s[i], VIM_SEND_TAP);
+    }
+}
+
 static void vim_send_repeated_multi(int8_t repeat, const uint16_t* code16s, uint8_t code16_count) {
     while (repeat > 0) {
-        for (int i = 0; i < code16_count; i++) {
-            vim_send(code16s[i], VIM_SEND_TAP);
-        }
+        vim_send_multi(code16s, code16_count);
         repeat--;
     }
 }
