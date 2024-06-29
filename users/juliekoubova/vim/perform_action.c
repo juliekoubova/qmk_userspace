@@ -191,13 +191,10 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     if ((action & VIM_MASK_ACTION) == VIM_ACTION_LINE) {
         type = VIM_SEND_TAP;
         vim_send(line_start, type);
+        uint8_t repeat = pending.repeat ? pending.repeat : 1;
         const uint16_t end_right[] = {LSFT(line_end), LSFT(KC_RIGHT)};
-        uint8_t repeat = pending.repeat;
-        pending.repeat = 0;
-        if (repeat == 0) {
-            repeat = 1;
-        }
         vim_send_repeated_multi(repeat, end_right, 2);
+        pending.repeat = 0;
     }
 
     if (code16 != KC_NO) {
