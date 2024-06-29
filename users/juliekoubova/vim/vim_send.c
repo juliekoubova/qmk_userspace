@@ -52,3 +52,28 @@ void vim_send(uint16_t code16, vim_send_type_t type) {
     }
 }
 
+void vim_send_multi(const uint16_t* code16s, size_t count) {
+    for (size_t i = 0; i < count; i++) {
+        vim_send(code16s[i], VIM_SEND_TAP);
+    }
+}
+
+void vim_send_repeated(int8_t repeat, uint16_t code16, vim_send_type_t type) {
+    if (type == VIM_SEND_RELEASE) {
+        vim_send(code16, type);
+        return;
+    }
+    while (repeat > 1) {
+        vim_send(code16, VIM_SEND_TAP);
+        repeat--;
+    }
+    vim_send(code16, type);
+}
+
+void vim_send_repeated_multi(int8_t repeat, const uint16_t* code16s, uint8_t code16_count) {
+    while (repeat > 0) {
+        vim_send_multi(code16s, code16_count);
+        repeat--;
+    }
+}
+

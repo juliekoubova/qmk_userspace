@@ -22,7 +22,6 @@
 #include "statemachine.h"
 #include "vim_mode.h"
 #include "vim_send.h"
-#include <stddef.h>
 #include <stdbool.h>
 
 static uint16_t command_mods   = QK_LCTL;
@@ -64,31 +63,6 @@ void vim_set_apple(bool apple) {
     document_end   = apple ? LGUI(KC_DOWN) : LCTL(KC_END);
     line_start     = apple ? LGUI(KC_LEFT) : KC_HOME;
     line_end       = apple ? LGUI(KC_RIGHT) : KC_END;
-}
-
-static void vim_send_multi(const uint16_t* code16s, size_t count) {
-    for (size_t i = 0; i < count; i++) {
-        vim_send(code16s[i], VIM_SEND_TAP);
-    }
-}
-
-static void vim_send_repeated_multi(int8_t repeat, const uint16_t* code16s, uint8_t code16_count) {
-    while (repeat > 0) {
-        vim_send_multi(code16s, code16_count);
-        repeat--;
-    }
-}
-
-static void vim_send_repeated(int8_t repeat, uint16_t code16, vim_send_type_t type) {
-    if (type == VIM_SEND_RELEASE) {
-        vim_send(code16, type);
-        return;
-    }
-    while (repeat > 1) {
-        vim_send(code16, VIM_SEND_TAP);
-        repeat--;
-    }
-    vim_send(code16, type);
 }
 
 void vim_perform_action(vim_action_t action, vim_send_type_t type) {
@@ -217,13 +191,13 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     if ((action & VIM_MASK_ACTION) == VIM_ACTION_LINE) {
         type = VIM_SEND_TAP;
         vim_send(line_start, type);
-        vim_send(LSFT(line_end), type);
-        vim_send(LSFT(KC_RIGHT), type);
-        if (pending.repeat > 1) {
-            const uint16_t end_left[] = {LSFT(KC_DOWN), LSFT(line_end)};
-            vim_send_repeated_multi(pending.repeat - 1, end_left, 2);
-            pending.repeat = 0;
+        const uint16_t end_right[] = {LSFT(line_end), LSFT(KC_RIGHT)};
+        uint8_t repeat = pending.repeat;
+        pending.repeat = 0;
+        if (repeat == 0) {
+            repeat = 1;
         }
+        vim_send_repeated_multi(repeat, end_right, 2);
     }
 
     if (code16 != KC_NO) {

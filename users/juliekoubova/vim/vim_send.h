@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include <stddef.h>
 #include <stdint.h>
 
 typedef enum {
@@ -24,3 +25,7 @@ typedef enum {
 } vim_send_type_t;
 
 void vim_send(uint16_t keycode, vim_send_type_t);
+void vim_send_multi(const uint16_t* code16s, size_t count);
+void vim_send_repeated(int8_t repeat, uint16_t code16, vim_send_type_t type);
+void vim_send_repeated_multi(int8_t repeat, const uint16_t* code16s, uint8_t code16_count);
+
