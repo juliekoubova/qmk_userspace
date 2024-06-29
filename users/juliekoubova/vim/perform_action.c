@@ -24,16 +24,12 @@
 #include "vim_send.h"
 #include <stdbool.h>
 
-static uint16_t command_mods  = QK_LCTL;
-static uint16_t word_mods     = QK_LCTL;
-static uint8_t  line_mods     = 0;
-static uint16_t document_mods = QK_LCTL;
-
-static uint8_t document_start = KC_HOME;
-static uint8_t document_end   = KC_END;
-
-static uint8_t line_start = KC_HOME;
-static uint8_t line_end   = KC_END;
+static uint16_t command_mods   = QK_LCTL;
+static uint16_t word_mods      = QK_LCTL;
+static uint16_t document_start = LCTL(KC_HOME);
+static uint16_t document_end   = LCTL(KC_END);
+static uint16_t line_start     = KC_HOME;
+static uint16_t line_end       = KC_END;
 
 typedef enum { VLINE_DOWN_ASSUMED, VLINE_DOWN, VLINE_UP } vline_t;
 
@@ -49,8 +45,8 @@ static vline_t vline = VLINE_DOWN_ASSUMED;
 static void vim_vline_start(vline_t direction) {
     uint8_t first  = direction == VLINE_UP ? line_end : line_start;
     uint8_t second = direction == VLINE_UP ? line_start : line_end;
-    vim_send(line_mods | first, VIM_SEND_TAP);
-    vim_send(QK_LSFT | line_mods | second, VIM_SEND_TAP);
+    vim_send(first, VIM_SEND_TAP);
+    vim_send(LSFT(second), VIM_SEND_TAP);
     vline = direction;
 }
 
@@ -61,16 +57,12 @@ void vim_vline_entered(void) {
 
 void vim_set_apple(bool apple) {
     VIM_DPRINTF("apple=%d\n", apple);
-    command_mods = apple ? QK_LGUI : QK_LCTL;
-    word_mods    = apple ? QK_LALT : QK_LCTL;
-
-    document_mods  = apple ? QK_LGUI : QK_LCTL;
-    document_start = apple ? KC_UP : KC_HOME;
-    document_end   = apple ? KC_DOWN : KC_END;
-
-    line_mods  = apple ? QK_LGUI : 0;
-    line_start = apple ? KC_LEFT : KC_HOME;
-    line_end   = apple ? KC_RIGHT : KC_END;
+    command_mods   = apple ? QK_LGUI : QK_LCTL;
+    word_mods      = apple ? QK_LALT : QK_LCTL;
+    document_start = apple ? LGUI(KC_UP) : LCTL(KC_HOME);
+    document_end   = apple ? LGUI(KC_DOWN) : LCTL(KC_END);
+    line_start     = apple ? LGUI(KC_LEFT) : KC_HOME;
+    line_end       = apple ? LGUI(KC_RIGHT) : KC_END;
 }
 
 static void vim_send_repeated_multi(int8_t repeat, const uint16_t* code16s, uint8_t code16_count) {
@@ -104,18 +96,18 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             vim_send_repeated(pending.repeat, command_mods | KC_Z, type);
             return;
         case VIM_ACTION_OPEN_LINE_DOWN:
-            vim_send(line_mods | line_end, VIM_SEND_TAP);
+            vim_send(line_end, VIM_SEND_TAP);
             vim_send(KC_ENTER, VIM_SEND_TAP);
             vim_enter_insert_mode();
             return;
         case VIM_ACTION_OPEN_LINE_UP:
-            vim_send(line_mods | line_start, VIM_SEND_TAP);
+            vim_send(line_start, VIM_SEND_TAP);
             vim_send(KC_ENTER, VIM_SEND_TAP);
             vim_send(KC_UP, VIM_SEND_TAP);
             vim_enter_insert_mode();
             return;
         case VIM_ACTION_JOIN_LINE:
-            vim_send(line_mods | line_end, VIM_SEND_TAP);
+            vim_send(line_end, VIM_SEND_TAP);
             vim_send(KC_DEL, VIM_SEND_TAP);
             return;
         default:
@@ -148,10 +140,10 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
                 code16 = KC_RIGHT;
                 break;
             case VIM_ACTION_LINE_START:
-                code16 = line_mods | line_start;
+                code16 = line_start;
                 break;
             case VIM_ACTION_LINE_END:
-                code16 = line_mods | line_end;
+                code16 = line_end;
                 break;
             case VIM_ACTION_WORD_START:
                 code16 = word_mods | KC_LEFT;
@@ -160,11 +152,11 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
                 code16 = word_mods | KC_RIGHT;
                 break;
             case VIM_ACTION_DOCUMENT_START:
-                code16     = document_mods | document_start;
+                code16     = document_start;
                 next_vline = VLINE_UP;
                 break;
             case VIM_ACTION_DOCUMENT_END:
-                code16     = document_mods | document_end;
+                code16     = document_end;
                 next_vline = VLINE_DOWN;
                 break;
             case VIM_ACTION_PAGE_UP:
@@ -219,11 +211,11 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     if ((action & VIM_MASK_ACTION) == VIM_ACTION_LINE) {
         type = VIM_SEND_TAP;
-        vim_send(line_mods | line_start, type);
-        vim_send(QK_LSFT | line_mods | line_end, type);
-        vim_send(QK_LSFT | KC_RIGHT, type);
+        vim_send(line_start, type);
+        vim_send(LSFT(line_end), type);
+        vim_send(LSFT(KC_RIGHT), type);
         if (pending.repeat > 1) {
-            const uint16_t end_left[] = {QK_LSFT | KC_DOWN, QK_LSFT | line_mods | line_end};
+            const uint16_t end_left[] = {LSFT(KC_DOWN), LSFT(line_end)};
             vim_send_repeated_multi(pending.repeat - 1, end_left, 2);
             pending.repeat = 0;
         }
@@ -239,9 +231,9 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         // select the full line after we release the up/down key, or after a tap
         if (type == VIM_SEND_RELEASE || type == VIM_SEND_TAP) {
             if (vline == VLINE_UP) {
-                vim_send(QK_LSFT | line_mods | line_start, VIM_SEND_TAP);
+                vim_send(LSFT(line_start), VIM_SEND_TAP);
             } else if (vline == VLINE_DOWN) {
-                vim_send(QK_LSFT | line_mods | line_end, VIM_SEND_TAP);
+                vim_send(LSFT(line_end), VIM_SEND_TAP);
             }
         }
     }
