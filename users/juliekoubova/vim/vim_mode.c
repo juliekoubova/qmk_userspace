@@ -26,7 +26,7 @@ static vim_key_state_t vim_key_state = VIM_KEY_NONE;
 static uint8_t         vim_mods      = 0; // we modify the actual mods so we can't rely on them
 
 static void vim_cancel_os_selection(void) {
-    vim_send(0, KC_LEFT, VIM_SEND_TAP);
+    vim_send(KC_LEFT, VIM_SEND_TAP);
 }
 
 static void vim_set_mode(vim_mode_t mode) {

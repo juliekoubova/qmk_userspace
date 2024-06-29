@@ -23,5 +23,4 @@ typedef enum {
     VIM_SEND_RELEASE,
 } vim_send_type_t;
 
-void vim_send(uint8_t mods, uint16_t keycode, vim_send_type_t type);
-
+void vim_send(uint16_t keycode, vim_send_type_t);

@@ -20,7 +20,10 @@
 
 #define VIM_TAP_DELAY 30
 
-void vim_send(uint8_t mods, uint16_t keycode, vim_send_type_t type) {
+void vim_send(uint16_t code16, vim_send_type_t type) {
+    uint8_t mods = QK_MODS_GET_MODS(code16);
+    uint8_t keycode = QK_MODS_GET_BASIC_KEYCODE(code16);
+
     if (mods && (type == VIM_SEND_PRESS || type == VIM_SEND_TAP)) {
         VIM_DPRINTF("register mods=%x\n", mods);
         register_mods(mods);

@@ -116,6 +116,13 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
 #endif
 
+void keyboard_post_init_user(void) {
+#ifdef VIM_DEBUG
+    debug_enable = true;
+#endif
+}
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return process_record_vim(keycode, record, QK_VIM);
 }
@@ -124,9 +131,4 @@ void housekeeping_task_user() {
     vim_task();
 }
 
-#ifdef VIM_DEBUG
-void keyboard_post_init_user(void) {
-    debug_enable = true;
-}
-#endif
 
