@@ -18,14 +18,13 @@ If you enter Vim command mode, exiting is very easy, compared to the real thing.
 ## Motions
 * Replace your arrows: `h`, `j`, `k`, `l`
     * you still want real arrow keys in some layer, if you're sporting 60% or better. Preferably on your left hand.
-    * `Vim`+`hjkl` works great, but you can't combine it modifier keys.
+    * `QK_VIM`+`h`/`j`/`k`/`l` works great, but you can't combine it modifier keys.
 * Jump over words: `W`, `w`, `B`, `b`
     * sends `Ctrl`+`←`/`→` or `Option`+`←`/`→` in Apple mode
     * lower and upper case obviously do the same thing, can't do any better in a keyboard
 * Motions can be repeated (e.g. `5j` goes five lines down)
-    * ⚠️ this should be considered experimental, I plan to reimplement this to make it possible to interrupt by pressing a key,
-      in case it goes haywire
-    * if it does go haywire, you'll have to unplug the keyboard for now
+    * ⚠️ this should be considered experimental, I plan to reimplement this to make it possible to interrupt by pressing a key
+    * if it goes haywire, you'll have to unplug the keyboard for now
 * Line begin and end: `0`, `^`, `$`
     * sends `Home`/`End` or `Cmd`+`←`/`→` on Mac
     * `0` and `^` do the same thing again
