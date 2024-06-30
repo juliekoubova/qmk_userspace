@@ -9,9 +9,10 @@ for my 60% keyboard, and also to reduce the differences switching between Window
 
 It uses a single `QK_VIM` keycode&mdash;I have this mapped on my `Caps Lock` key.
 
-You can either tap the `QK_VIM` key to enter command mode (like `Esc` in actual Vim), or you can hold like a modifier,
-and the command mode will disengage once you release it. This is useful for simple navigation, e.g. when your keyboard
-is missing dedicated arrow keys, or you just don't like leaving your home row.
+You can either tap the `QK_VIM` key to ~~enter command mode~~ leave insert mode (like `Esc` in actual Vim), 
+or you can hold it like a modifier, and the command mode will disengage once you release it. This is useful
+for simple navigation, e.g. when your keyboard is missing dedicated arrow keys, or you just don't like
+leaving your home row.
 
 If you enter Vim command mode, exiting is very easy, compared to the real thing. You just press that key again.
 
