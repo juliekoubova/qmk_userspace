@@ -90,69 +90,63 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     uint16_t code16     = KC_NO;
     vline_t  next_vline = VLINE_DOWN_ASSUMED;
 
-    if (action == (VIM_MOD_DELETE | VIM_ACTION_LEFT)) {
-        code16 = KC_BSPC;
-        action &= ~VIM_MOD_DELETE;
-    } else if (action == (VIM_MOD_DELETE | VIM_ACTION_RIGHT)) {
-        code16 = KC_DEL;
-        action &= ~VIM_MOD_DELETE;
-    } else {
-        switch (action & VIM_MASK_ACTION) {
-            case VIM_ACTION_LEFT:
-                code16 = KC_LEFT;
-                break;
-            case VIM_ACTION_DOWN:
-                code16     = KC_DOWN;
-                next_vline = VLINE_DOWN;
-                break;
-            case VIM_ACTION_UP:
-                code16     = KC_UP;
-                next_vline = VLINE_UP;
-                break;
-            case VIM_ACTION_RIGHT:
-                code16 = KC_RIGHT;
-                break;
-            case VIM_ACTION_LINE_START:
-                code16 = line_start;
-                break;
-            case VIM_ACTION_LINE_END:
-                code16 = line_end;
-                break;
-            case VIM_ACTION_WORD_START:
-                code16 = word_mods | KC_LEFT;
-                break;
-            case VIM_ACTION_WORD_END:
-                code16 = word_mods | KC_RIGHT;
-                break;
-            case VIM_ACTION_DOCUMENT_START:
-                code16     = document_start;
-                next_vline = VLINE_UP;
-                break;
-            case VIM_ACTION_DOCUMENT_END:
-                code16     = document_end;
-                next_vline = VLINE_DOWN;
-                break;
-            case VIM_ACTION_PAGE_UP:
-                code16          = KC_PAGE_UP;
-                next_vline      = VLINE_UP;
-                pending.keycode = KC_NO;
-                break;
-            case VIM_ACTION_PAGE_DOWN:
-                code16          = KC_PAGE_DOWN;
-                next_vline      = VLINE_DOWN;
-                pending.keycode = KC_NO;
-                break;
-            case VIM_ACTION_PASTE:
-                code16          = command_mods | KC_V;
-                pending.keycode = KC_NO;
-                break;
-            case VIM_ACTION_UNDO:
-                code16          = command_mods | KC_Z;
-                pending.keycode = KC_NO;
-                break;
-            default:
-                break;
-        }
+    switch (action & VIM_MASK_ACTION) {
+        case VIM_ACTION_LEFT:
+            code16 = (action & VIM_MOD_DELETE) ? KC_BSPC : KC_LEFT;
+            action &= ~VIM_MOD_DELETE;
+            break;
+        case VIM_ACTION_RIGHT:
+            code16 = (action & VIM_MOD_DELETE) ? KC_DEL : KC_RIGHT;
+            action &= ~VIM_MOD_DELETE;
+            break;
+        case VIM_ACTION_DOWN:
+            code16     = KC_DOWN;
+            next_vline = VLINE_DOWN;
+            break;
+        case VIM_ACTION_UP:
+            code16     = KC_UP;
+            next_vline = VLINE_UP;
+            break;
+        case VIM_ACTION_LINE_START:
+            code16 = line_start;
+            break;
+        case VIM_ACTION_LINE_END:
+            code16 = line_end;
+            break;
+        case VIM_ACTION_WORD_START:
+            code16 = word_mods | KC_LEFT;
+            break;
+        case VIM_ACTION_WORD_END:
+            code16 = word_mods | KC_RIGHT;
+            break;
+        case VIM_ACTION_DOCUMENT_START:
+            code16     = document_start;
+            next_vline = VLINE_UP;
+            break;
+        case VIM_ACTION_DOCUMENT_END:
+            code16     = document_end;
+            next_vline = VLINE_DOWN;
+            break;
+        case VIM_ACTION_PAGE_UP:
+            code16          = KC_PAGE_UP;
+            next_vline      = VLINE_UP;
+            pending.keycode = KC_NO;
+            break;
+        case VIM_ACTION_PAGE_DOWN:
+            code16          = KC_PAGE_DOWN;
+            next_vline      = VLINE_DOWN;
+            pending.keycode = KC_NO;
+            break;
+        case VIM_ACTION_PASTE:
+            code16          = command_mods | KC_V;
+            pending.keycode = KC_NO;
+            break;
+        case VIM_ACTION_UNDO:
+            code16          = command_mods | KC_Z;
+            pending.keycode = KC_NO;
+            break;
+        default:
+            break;
     }
 
     switch (pending.keycode) {
@@ -230,7 +224,6 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     if (action == (VIM_ACTION_LINE | VIM_MOD_YANK)) {
         vim_send(KC_LEFT, VIM_SEND_TAP);
     }
-
 
     VIM_DPRINTF("vim_perform_action %x\n", action);
     vim_enter_mode(VIM_MODE_FROM_ACTION(action));
