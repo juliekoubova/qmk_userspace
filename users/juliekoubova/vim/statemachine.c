@@ -56,7 +56,6 @@
 // clang-format on
 
 static const vim_statemachine_t vsm_command[VSM_SIZE] = {
-    // clang-format off
     VSM(KC_A, VIM_ACTION_RIGHT | VIM_ENTER_INSERT),
     VSM_HOLD(KC_B, VIM_ACTION_WORD_START),
     VSM_APPEND_FIRST_THEN_ACTION(KC_C, VIM_ACTION_LINE | VIM_MOD_DELETE | VIM_ENTER_INSERT),
@@ -86,11 +85,9 @@ static const vim_statemachine_t vsm_command[VSM_SIZE] = {
     VSM_APPEND(KC_9),
     VSM_APPEND(KC_9),
     VSM_APPEND_IF_PENDING(KC_0, VIM_ACTION_LINE_START),
-    // clang-format on
 };
 
 static const vim_statemachine_t vsm_command_shift[VSM_SIZE] = {
-    // clang-format off
     VSM(KC_A, VIM_ACTION_LINE_END | VIM_ENTER_INSERT),
     VSM_HOLD(KC_B, VIM_ACTION_WORD_START),
     VSM(KC_C, VIM_ACTION_LINE_END | VIM_MOD_DELETE | VIM_ENTER_INSERT),
@@ -108,7 +105,6 @@ static const vim_statemachine_t vsm_command_shift[VSM_SIZE] = {
     VSM(KC_Y, VIM_ACTION_LINE | VIM_MOD_YANK),
     VSM_HOLD(KC_4, VIM_ACTION_LINE_END),
     VSM_HOLD(KC_6, VIM_ACTION_LINE_START),
-    // clang-format on
 };
 
 static const vim_statemachine_t vsm_command_ctrl[VSM_SIZE] = {
@@ -117,7 +113,6 @@ static const vim_statemachine_t vsm_command_ctrl[VSM_SIZE] = {
 };
 
 static const vim_statemachine_t vsm_visual[VSM_SIZE] = {
-    // clang-format off
     VSM_HOLD(KC_B, VIM_ACTION_WORD_START | VIM_MOD_SELECT),
     VSM(KC_C, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
     VSM(KC_D, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
@@ -144,11 +139,9 @@ static const vim_statemachine_t vsm_visual[VSM_SIZE] = {
     VSM_APPEND(KC_9),
     VSM_APPEND_IF_PENDING(KC_0, VIM_ACTION_LINE_START | VIM_MOD_SELECT),
     VSM(KC_ESCAPE, VIM_ENTER_COMMAND),
-    // clang-format on
 };
 
 static const vim_statemachine_t vsm_visual_shift[VSM_SIZE] = {
-    // clang-format off
     VSM(KC_C, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
     VSM(KC_D, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
     VSM(KC_V, VIM_ACTION_SELECTION | VIM_MOD_SELECT | VIM_ENTER_VLINE),
@@ -157,11 +150,9 @@ static const vim_statemachine_t vsm_visual_shift[VSM_SIZE] = {
     VSM(KC_4, VIM_ACTION_LINE_END | VIM_MOD_SELECT),
     VSM(KC_6, VIM_ACTION_LINE_START | VIM_MOD_SELECT),
     VSM(KC_ESCAPE, VIM_ENTER_COMMAND),
-    // clang-format on
 };
 
 static const vim_statemachine_t vsm_vline[VSM_SIZE] = {
-    // clang-format off
     VSM(KC_C, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
     VSM(KC_D, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
     VSM_APPEND_FIRST_THEN_ACTION(KC_G, VIM_ACTION_DOCUMENT_START | VIM_MOD_SELECT),
@@ -183,18 +174,15 @@ static const vim_statemachine_t vsm_vline[VSM_SIZE] = {
     VSM_APPEND(KC_9),
     VSM_APPEND(KC_0),
     VSM(KC_ESCAPE, VIM_ENTER_COMMAND),
-    // clang-format on
 };
 
 static const vim_statemachine_t vsm_vline_shift[VSM_SIZE] = {
-    // clang-format off
     VSM(KC_C, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_INSERT),
     VSM(KC_D, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
     VSM(KC_V, VIM_ENTER_COMMAND),
     VSM(KC_X, VIM_ACTION_SELECTION | VIM_MOD_DELETE | VIM_ENTER_COMMAND),
     VSM(KC_Y, VIM_ACTION_SELECTION | VIM_MOD_YANK | VIM_ENTER_COMMAND),
     VSM(KC_ESCAPE, VIM_ENTER_COMMAND),
-    // clang-format on
 };
 
 #undef VSM
