@@ -17,7 +17,7 @@ leaving your home row.
 If you enter Vim command mode, exiting is very easy, compared to the real thing.
 You just press that key again.
 
-## Motions
+### Motions
 * Replace your arrows: `h`, `j`, `k`, `l`
     * you still want real arrow keys in some layer, if you're sporting 60% or
       better. Preferably on your left hand.
@@ -37,8 +37,8 @@ You just press that key again.
     * sends `Ctrl`+`Home`/`End` or `Cmd`+`↑`/`↓` on Mac
 * Page Up / page down (`Ctrl`+`B`, `Ctrl`+`F`)
     * sends `PageUp`, `PageDown`
- 
-## Commands
+
+### Commands
 * `c`, `d` and `y` do what you would expect. You can repeat them (e.g. `5dw`)
 * `cc`, `dd`, `S`, and `yy` do what you would expect, at least most of the time.
     * ⚠️ They don't play well with soft-wrapped lines.
@@ -46,13 +46,13 @@ You just press that key again.
 * `p` and `P` work, but they do the same thing (`Ctrl`/`Cmd`+`V`)
 * `u` sends `Ctrl`/`Cmd`+`Z`
 
-## Visual and V-Line Modes
+### Visual and V-Line Modes
 * `v` puts you in visual mode
 * `V` puts you in v-line mode
     * ⚠️ it kinda breaks if you start going one direction, then reverse and go
       past the original starting point
 
-## Setup Instructions
+### Setup Instructions
 To try it out, I suggest adding my userspace as a git submodule and linking it
 into your `users` folder. This should work the same whether you use
 [external userspace](https://docs.qmk.fm/newbs_external_userspace), 
@@ -76,7 +76,6 @@ call `process_record_vim` from your `process_record_user`. For a more advanced
 example, including RGB gamer vomit on mapped keys, check out 
 [my Keychron Q4 keymap](https://github.com/juliekoubova/qmk_userspace/blob/main/keyboards/keychron/q4/ansi/keymaps/juliekoubova/keymap.c).
 
-
 ```c
 // 1. include the header
 #include "users/juliekoubova/vim.h"
@@ -93,9 +92,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return process_record_vim(keycode, record, QK_VIM);
 }
 ```
+
 ### macOS Support
-You can call `vim_set_apple(true)` to tell Vim mode to send macOS shortcuts. This pairs nicely with QMK's
-builtin OS detection:
+You can call `vim_set_apple(true)` to tell Vim mode to send macOS shortcuts.
+This pairs nicely with QMK's built-in [OS detection](https://docs.qmk.fm/features/os_detection):
 ```c
 #ifdef OS_DETECTION_ENABLE
 bool process_detected_host_os_user(os_variant_t os) {
