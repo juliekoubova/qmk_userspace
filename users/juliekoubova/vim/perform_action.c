@@ -83,17 +83,28 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             break;
     }
 
-    uint16_t code16[3]  = {KC_NO, KC_NO, KC_NO};
-    vline_t  next_vline = VLINE_DOWN_ASSUMED;
+    uint16_t code16[3]         = {KC_NO, KC_NO, KC_NO};
+    vline_t  next_vline        = VLINE_DOWN_ASSUMED;
+    bool     selection_cleared = false;
 
     switch (action & VIM_MASK_ACTION) {
         case VIM_ACTION_LEFT:
-            *code16 = (action & VIM_MOD_DELETE) ? KC_BSPC : KC_LEFT;
-            action &= ~VIM_MOD_DELETE;
+            if (action & VIM_MOD_DELETE) {
+                *code16 = KC_BSPC;
+                action &= ~VIM_MOD_DELETE;
+                selection_cleared = true;
+            } else {
+                *code16 = KC_LEFT;
+            }
             break;
         case VIM_ACTION_RIGHT:
-            *code16 = (action & VIM_MOD_DELETE) ? KC_DEL : KC_RIGHT;
-            action &= ~VIM_MOD_DELETE;
+            if (action & VIM_MOD_DELETE) {
+                *code16 = KC_DEL;
+                action &= ~VIM_MOD_DELETE;
+                selection_cleared = true;
+            } else {
+                *code16 = KC_RIGHT;
+            }
             break;
         case VIM_ACTION_DOWN:
             *code16    = KC_DOWN;
@@ -134,17 +145,19 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             pending.keycode = KC_NO;
             break;
         case VIM_ACTION_PASTE:
-            *code16         = command_mods | KC_V;
-            pending.keycode = KC_NO;
+            *code16           = command_mods | KC_V;
+            pending.keycode   = KC_NO;
+            selection_cleared = true;
             break;
         case VIM_ACTION_UNDO:
             *code16         = command_mods | KC_Z;
             pending.keycode = KC_NO;
             break;
         case VIM_ACTION_JOIN_LINE:
-            code16[0] = line_end;
-            code16[1] = KC_SPACE;
-            code16[2] = KC_DEL;
+            code16[0]         = line_end;
+            code16[1]         = KC_SPACE;
+            code16[2]         = KC_DEL;
+            selection_cleared = true;
             break;
         default:
             break;
@@ -220,6 +233,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     if (action & VIM_MOD_DELETE) {
         vim_send(command_mods | KC_X, VIM_SEND_TAP);
+        selection_cleared = true;
     } else if (action & VIM_MOD_YANK) {
         vim_send(command_mods | KC_C, VIM_SEND_TAP);
     }
@@ -229,8 +243,9 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     // get rid of the selection.
     if (action == (VIM_ACTION_LINE | VIM_MOD_YANK)) {
         vim_send(KC_LEFT, VIM_SEND_TAP);
+        selection_cleared = true;
     }
 
     VIM_DPRINTF("vim_perform_action %x\n", action);
-    vim_enter_mode(VIM_MODE_FROM_ACTION(action));
+    vim_enter_mode(VIM_MODE_FROM_ACTION(action), selection_cleared);
 }

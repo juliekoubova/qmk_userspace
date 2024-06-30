@@ -55,13 +55,15 @@ void vim_enter_insert_mode(void) {
     register_mods(mods);
 }
 
-void vim_enter_command_mode(void) {
+void vim_enter_command_mode(bool selection_cleared) {
     switch (vim_mode) {
         case VIM_MODE_COMMAND:
             return;
         case VIM_MODE_VISUAL:
         case VIM_MODE_VLINE:
-            vim_cancel_os_selection();
+            if (!selection_cleared) {
+                vim_cancel_os_selection();
+            }
             break;
         default:
             break;
@@ -91,7 +93,7 @@ void vim_enter_vline_mode(void) {
     vim_set_mode(VIM_MODE_VLINE);
 }
 
-void vim_enter_mode(vim_mode_t mode) {
+void vim_enter_mode(vim_mode_t mode, bool selection_cleared) {
     VIM_DPRINTF("vim_enter_mode: %d\n", mode);
     switch (mode) {
         case VIM_MODE_INSERT:
@@ -104,7 +106,7 @@ void vim_enter_mode(vim_mode_t mode) {
             vim_enter_vline_mode();
             break;
         case VIM_MODE_COMMAND:
-            vim_enter_command_mode();
+            vim_enter_command_mode(selection_cleared);
             break;
     }
 }
@@ -130,5 +132,7 @@ vim_key_state_t vim_set_vim_key_state(vim_key_state_t key_state) {
 }
 
 void vim_dprintf_key(const char *prefix, uint16_t keycode, const keyrecord_t *record) {
-    VIM_DPRINTF("%s %s keycode=%x: mode=%d mods=%x vim_key=%x\n", prefix, record->event.pressed ? "pressed" : "released", keycode, vim_mode, vim_mods, vim_key_state);
+    VIM_DPRINTF("%s %s keycode=%x: mode=%d mods=%x vim_key=%x\n", prefix,
+                record->event.pressed ? "pressed" : "released", keycode, vim_mode, vim_mods,
+                vim_key_state);
 }

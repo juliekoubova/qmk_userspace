@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include <stdbool.h>
 #include <stdint.h>
 #include "quantum/quantum.h"
 
@@ -33,11 +34,11 @@ uint8_t vim_get_mods(void);
 vim_key_state_t vim_get_vim_key_state(void);
 vim_key_state_t vim_set_vim_key_state(vim_key_state_t);
 
-void       vim_enter_command_mode(void);
+void       vim_enter_command_mode(bool selection_cleared);
 void       vim_enter_insert_mode(void);
 void       vim_enter_visual_mode(void);
 void       vim_enter_vline_mode(void);
-void       vim_enter_mode(vim_mode_t mode);
+void       vim_enter_mode(vim_mode_t mode, bool selection_cleared);
 vim_mode_t vim_get_mode(void);
 void       vim_mode_changed(vim_mode_t mode);
 

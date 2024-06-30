@@ -53,7 +53,7 @@ void vim_process_vim_key(bool pressed) {
         if (vim_get_mode() == VIM_MODE_INSERT) {
             VIM_DPRINT("Vim key pressed in insert mode\n");
             vim_set_vim_key_state(VIM_KEY_TAP);
-            vim_enter_command_mode();
+            vim_enter_command_mode(false);
         } else {
             VIM_DPRINT("Vim key pressed in non-insert mode\n");
             vim_set_vim_key_state(VIM_KEY_NONE);
@@ -67,7 +67,7 @@ void vim_process_vim_key(bool pressed) {
                 // in that case, we want to stay in the selected mode
                 break;
             case VIM_KEY_TAP:
-                vim_enter_command_mode();
+                vim_enter_command_mode(false);
                 break;
             case VIM_KEY_HELD:
                 vim_enter_insert_mode();
