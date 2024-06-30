@@ -79,71 +79,72 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
             vim_send(KC_UP, VIM_SEND_TAP);
             vim_enter_insert_mode();
             return;
-        case VIM_ACTION_JOIN_LINE:
-            vim_send(line_end, VIM_SEND_TAP);
-            vim_send(KC_DEL, VIM_SEND_TAP);
-            return;
         default:
             break;
     }
 
-    uint16_t code16     = KC_NO;
+    uint16_t code16[3]  = {KC_NO, KC_NO, KC_NO};
     vline_t  next_vline = VLINE_DOWN_ASSUMED;
 
     switch (action & VIM_MASK_ACTION) {
         case VIM_ACTION_LEFT:
-            code16 = (action & VIM_MOD_DELETE) ? KC_BSPC : KC_LEFT;
+            *code16 = (action & VIM_MOD_DELETE) ? KC_BSPC : KC_LEFT;
             action &= ~VIM_MOD_DELETE;
             break;
         case VIM_ACTION_RIGHT:
-            code16 = (action & VIM_MOD_DELETE) ? KC_DEL : KC_RIGHT;
+            *code16 = (action & VIM_MOD_DELETE) ? KC_DEL : KC_RIGHT;
             action &= ~VIM_MOD_DELETE;
             break;
         case VIM_ACTION_DOWN:
-            code16     = KC_DOWN;
+            *code16    = KC_DOWN;
             next_vline = VLINE_DOWN;
             break;
         case VIM_ACTION_UP:
-            code16     = KC_UP;
+            *code16    = KC_UP;
             next_vline = VLINE_UP;
             break;
         case VIM_ACTION_LINE_START:
-            code16 = line_start;
+            *code16 = line_start;
             break;
         case VIM_ACTION_LINE_END:
-            code16 = line_end;
+            *code16 = line_end;
             break;
         case VIM_ACTION_WORD_START:
-            code16 = word_mods | KC_LEFT;
+            *code16 = word_mods | KC_LEFT;
             break;
         case VIM_ACTION_WORD_END:
-            code16 = word_mods | KC_RIGHT;
+            *code16 = word_mods | KC_RIGHT;
             break;
         case VIM_ACTION_DOCUMENT_START:
-            code16     = document_start;
+            *code16    = document_start;
             next_vline = VLINE_UP;
             break;
         case VIM_ACTION_DOCUMENT_END:
-            code16     = document_end;
+            *code16    = document_end;
             next_vline = VLINE_DOWN;
             break;
         case VIM_ACTION_PAGE_UP:
-            code16          = KC_PAGE_UP;
+            *code16         = KC_PAGE_UP;
             next_vline      = VLINE_UP;
             pending.keycode = KC_NO;
             break;
         case VIM_ACTION_PAGE_DOWN:
-            code16          = KC_PAGE_DOWN;
+            *code16         = KC_PAGE_DOWN;
             next_vline      = VLINE_DOWN;
             pending.keycode = KC_NO;
             break;
         case VIM_ACTION_PASTE:
-            code16          = command_mods | KC_V;
+            *code16         = command_mods | KC_V;
             pending.keycode = KC_NO;
             break;
         case VIM_ACTION_UNDO:
-            code16          = command_mods | KC_Z;
+            *code16         = command_mods | KC_Z;
             pending.keycode = KC_NO;
+            break;
+        case VIM_ACTION_JOIN_LINE:
+            code16[0] = line_end;
+            code16[1] = KC_SPACE;
+            code16[2] = KC_DEL;
             break;
         default:
             break;
@@ -167,12 +168,12 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     }
 
     if (action & (VIM_MOD_DELETE | VIM_MOD_YANK)) {
-        code16 |= QK_LSFT;
+        *code16 |= QK_LSFT;
         type = VIM_SEND_TAP;
     }
 
     if (action & VIM_MOD_SELECT) {
-        code16 |= QK_LSFT;
+        *code16 |= QK_LSFT;
     }
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
@@ -186,19 +187,24 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         }
     }
 
+    int8_t repeat = (pending.repeat == 0) ? 1 : pending.repeat;
+
     if ((action & VIM_MASK_ACTION) == VIM_ACTION_LINE) {
         type = VIM_SEND_TAP;
         vim_send(line_start, type);
-        uint8_t        repeat      = pending.repeat ? pending.repeat : 1;
         const uint16_t end_right[] = {LSFT(line_end), LSFT(KC_RIGHT)};
         vim_send_repeated_multi(repeat, end_right, 2);
-        pending.repeat = 0;
+        repeat = 1;
     }
 
-    if (code16 != KC_NO) {
+    if (code16[2] != KC_NO) {
+        vim_send_repeated_multi(repeat, code16, 3);
+    } else if (code16[1] != KC_NO) {
+        vim_send_repeated_multi(repeat, code16, 2);
+    } else if (code16[0] != KC_NO) {
         // keycode is KC_NO in visual mode, where the object is the visual
-        // selection; send shifted action as a tap
-        vim_send_repeated(pending.repeat, code16, type);
+        // selection
+        vim_send_repeated(repeat, *code16, type);
     }
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
