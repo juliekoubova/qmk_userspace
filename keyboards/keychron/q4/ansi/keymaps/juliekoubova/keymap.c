@@ -50,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 static bool is_apple = false;
 
 bool process_detected_host_os_user(os_variant_t os) {
-    dprintf("OS detected: %d\n", os);
+    dprintf("OS detected: %d\n", detected_os);
     is_apple = os == OS_MACOS || os == OS_IOS;
     vim_set_apple(is_apple);
     return true;

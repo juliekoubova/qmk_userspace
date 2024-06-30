@@ -1,12 +1,10 @@
-# Julie's QMK Userspace
-
-Hey everyone, this is my QMK userspace.
+Hey everyone, this is my [QMK userspace](https://docs.qmk.fm/newbs_external_userspace).
 
 # Vim Mode
 
 Perchance you're interested in my Vim mode. It is pretty comprehensive, if I dare
-say so myself. I have built it for my 60% keyboard, and also to reduce the differences
-switching between Windows, Linux, and macOS all day long.
+say so myself. I have built it for my 60% keyboard, and also to reduce the
+differences switching between Windows, Linux, and macOS all day long.
 
 It uses a single `QK_VIM` keycode&mdash;I have this mapped on my `Caps Lock` key.
 
