@@ -47,12 +47,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef OS_DETECTION_ENABLE
 
-static os_variant_t detected_os;
+static bool is_apple = false;
 
 bool process_detected_host_os_user(os_variant_t os) {
-    detected_os = os;
-    dprintf("OS detected: %d\n", detected_os);
-    vim_set_apple(os == OS_MACOS || os == OS_IOS);
+    dprintf("OS detected: %d\n", os);
+    is_apple = os == OS_MACOS || os == OS_IOS;
+    vim_set_apple(is_apple);
     return true;
 }
 
@@ -66,7 +66,6 @@ bool process_detected_host_os_user(os_variant_t os) {
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = get_highest_layer(layer_state);
-    bool is_apple = detected_os == OS_MACOS || detected_os == OS_IOS;
 
     for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
         for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
