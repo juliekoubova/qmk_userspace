@@ -68,12 +68,6 @@ void vim_set_apple(bool apple) {
 void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     vim_pending_t pending = vim_clear_pending();
     switch (action & VIM_MASK_ACTION) {
-        case VIM_ACTION_PASTE:
-            vim_send_repeated(pending.repeat, command_mods | KC_V, type);
-            return;
-        case VIM_ACTION_UNDO:
-            vim_send_repeated(pending.repeat, command_mods | KC_Z, type);
-            return;
         case VIM_ACTION_OPEN_LINE_DOWN:
             vim_send(line_end, VIM_SEND_TAP);
             vim_send(KC_ENTER, VIM_SEND_TAP);
@@ -139,12 +133,22 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
                 next_vline = VLINE_DOWN;
                 break;
             case VIM_ACTION_PAGE_UP:
-                code16     = KC_PAGE_UP;
-                next_vline = VLINE_UP;
+                code16          = KC_PAGE_UP;
+                next_vline      = VLINE_UP;
+                pending.keycode = KC_NO;
                 break;
             case VIM_ACTION_PAGE_DOWN:
-                code16     = KC_PAGE_DOWN;
-                next_vline = VLINE_DOWN;
+                code16          = KC_PAGE_DOWN;
+                next_vline      = VLINE_DOWN;
+                pending.keycode = KC_NO;
+                break;
+            case VIM_ACTION_PASTE:
+                code16          = command_mods | KC_V;
+                pending.keycode = KC_NO;
+                break;
+            case VIM_ACTION_UNDO:
+                code16          = command_mods | KC_Z;
+                pending.keycode = KC_NO;
                 break;
             default:
                 break;
@@ -191,7 +195,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
     if ((action & VIM_MASK_ACTION) == VIM_ACTION_LINE) {
         type = VIM_SEND_TAP;
         vim_send(line_start, type);
-        uint8_t repeat = pending.repeat ? pending.repeat : 1;
+        uint8_t        repeat      = pending.repeat ? pending.repeat : 1;
         const uint16_t end_right[] = {LSFT(line_end), LSFT(KC_RIGHT)};
         vim_send_repeated_multi(repeat, end_right, 2);
         pending.repeat = 0;
@@ -205,7 +209,7 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
 
     if (vim_get_mode() == VIM_MODE_VLINE) {
         // select the full line after we release the up/down key, or after a tap
-        if (type == VIM_SEND_RELEASE || type == VIM_SEND_TAP) {
+        if (type & VIM_SEND_RELEASE) {
             if (vline == VLINE_UP) {
                 vim_send(LSFT(line_start), VIM_SEND_TAP);
             } else if (vline == VLINE_DOWN) {
