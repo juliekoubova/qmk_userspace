@@ -1,59 +1,94 @@
-# QMK Userspace
+# Julie's QMK Userspace
 
-This is a template repository which allows for an external set of QMK keymaps to be defined and compiled. This is useful for users who want to maintain their own keymaps without having to fork the main QMK repository.
+Hey everyone, this is my QMK userspace.
 
-## Howto configure your build targets
+# Vim Mode
 
-1. Run the normal `qmk setup` procedure if you haven't already done so -- see [QMK Docs](https://docs.qmk.fm/#/newbs) for details.
-1. Fork this repository
-1. Clone your fork to your local machine
-1. Enable userspace in QMK config using `qmk config user.overlay_dir="$(realpath qmk_userspace)"`
-1. Add a new keymap for your board using `qmk new-keymap`
-    * This will create a new keymap in the `keyboards` directory, in the same location that would normally be used in the main QMK repository. For example, if you wanted to add a keymap for the Planck, it will be created in `keyboards/planck/keymaps/<your keymap name>`
-    * You can also create a new keymap using `qmk new-keymap -kb <your_keyboard> -km <your_keymap>`
-    * Alternatively, add your keymap manually by placing it in the location specified above.
-    * `layouts/<layout name>/<your keymap name>/keymap.*` is also supported if you prefer the layout system
-1. Add your keymap(s) to the build by running `qmk userspace-add -kb <your_keyboard> -km <your_keymap>`
-    * This will automatically update your `qmk.json` file
-    * Corresponding `qmk userspace-remove -kb <your_keyboard> -km <your_keymap>` will delete it
-    * Listing the build targets can be done with with `qmk userspace-list`
-1. Commit your changes
+Perchance you're interested in my Vim mode. It is pretty comprehensive, if I dare say so myself. I have built it
+for my 60% keyboard, and also to reduce the differences switching between Windows, Linux, and macOS all day long.
 
-## Howto build with GitHub
+It uses a single `QK_VIM` keycode&mdash;I have this mapped on my `Caps Lock` key.
 
-1. In the GitHub Actions tab, enable workflows
-1. Push your changes above to your forked GitHub repository
-1. Look at the GitHub Actions for a new actions run
-1. Wait for the actions run to complete
-1. Inspect the Releases tab on your repository for the latest firmware build
+You can either tap the `QK_VIM` key to enter command mode (like `Esc` in actual Vim), or you can hold like a modifier,
+and the command mode will disengage once you release it. This is useful for simple navigation, e.g. when your keyboard
+is missing dedicated arrow keys, or you just don't like leaving your home row.
 
-## Howto build locally
+If you enter Vim command mode, exiting is very easy, compared to the real thing. You just press that key again.
 
-1. Run the normal `qmk setup` procedure if you haven't already done so -- see [QMK Docs](https://docs.qmk.fm/#/newbs) for details.
-1. Fork this repository
-1. Clone your fork to your local machine
-1. `cd` into this repository's clone directory
-1. Set global userspace path: `qmk config user.overlay_dir="$(realpath .)"` -- you MUST be located in the cloned userspace location for this to work correctly
-    * This will be automatically detected if you've `cd`ed into your userspace repository, but the above makes your userspace available regardless of your shell location.
-1. Compile normally: `qmk compile -kb your_keyboard -km your_keymap` or `make your_keyboard:your_keymap`
+## Motions
+* Replace your arrows: `h`, `j`, `k`, `l`
+    * you still want real arrow keys in some layer, if you're sporting 60% or better. Preferably on your left hand.
+    * `Vim`+`hjkl` works great, but you can't combine it modifier keys.
+* Jump over words: `W`, `w`, `B`, `b`
+    * sends `Ctrl`+`←`/`→` or `Option`+`←`/`→` in Apple mode
+    * lower and upper case obviously do the same thing, can't do any better in a keyboard
+* Motions can be repeated (e.g. `5j` goes five lines down)
+    * ⚠️ this should be considered experimental, I plan to reimplement this to make it possible to interrupt by pressing a key,
+      in case it goes haywire
+    * if it does go haywire, you'll have to unplug the keyboard for now
+* Line begin and end: `0`, `^`, `$`
+    * sends `Home`/`End` or `Cmd`+`←`/`→` on Mac
+    * `0` and `^` do the same thing again
+* Document begin and end (`gg` and `G`)
+    * sends `Ctrl`+`Home`/`End` or `Cmd`+`↑`/`↓` on Mac
+* Page Up / page down (`Ctrl`+`B`, `Ctrl`+`F`)
+    * sends `PageUp`, `PageDown`
+ 
+## Commands
+* `c`, `d` and `y` do what you would expect. You can repeat them (e.g. `5dw`)
+* `cc`, `dd`, `J`, `o`, `O`, `S`, and `yy` do what you would expect, at least most of the time.
+    * ⚠️ They don't play well with soft-wrapped lines.
+* `p` and `P` work, but they do the same thing (`Ctrl`/`Cmd`+`V`)
+* `u` sends `Ctrl`/`Cmd`+`Z`
 
-Alternatively, if you configured your build targets above, you can use `qmk userspace-compile` to build all of your userspace targets at once.
+## Visual and V-Line Modes
+* `v` and `V` put you in visual mode
+    * ⚠️ V-LINE mode kinda breaks if you start going one direction, then reverse and go past  the original starting point
 
-## Extra info
+## Setup Instructions
+To try it out, I suggest adding my userspace as a git submodule and linking it into your `users` folder. 
+This should work the same whether you also have [an external userspace](https://github.com/qmk/qmk_userspace/), 
+or you have forked [qmk_firmware](https://github.com/qmk/qmk_firmware/).
 
-If you wish to point GitHub actions to a different repository, a different branch, or even a different keymap name, you can modify `.github/workflows/build_binaries.yml` to suit your needs.
-
-To override the `build` job, you can change the following parameters to use a different QMK repository or branch:
+```shell
+$ mkdir submodules
+$ git submodule add https://github.com/juliekoubova/qmk_userspace.git submodules/juliekoubova
+$ ln -s submodules/juliekoubova/users/juliekoubova users/juliekoubova
 ```
-    with:
-      qmk_repo: qmk/qmk_firmware
-      qmk_ref: master
+
+Now you should be able to include and enable Vim mode in your keymap's `rules.mk`:
+
+```make
+VIM_MODE_ENABLE = yes
+include users/juliekoubova/rules.mk
 ```
 
-If you wish to manually manage `qmk_firmware` using git within the userspace repository, you can add `qmk_firmware` as a submodule in the userspace directory instead. GitHub Actions will automatically use the submodule at the pinned revision if it exists, otherwise it will use the default latest revision of `qmk_firmware` from the main repository.
+All that remains is to define a `QK_VIM` key, include it in your keymap, and call `process_record_vim`
+from your `process_record_user`. For more advanced example, check out 
+[my Keychron Q4 keymap](https://github.com/juliekoubova/qmk_userspace/blob/main/keyboards/keychron/q4/ansi/keymaps/juliekoubova/keymap.c).
 
-This can also be used to control which fork is used, though only upstream `qmk_firmware` will have support for external userspace until other manufacturers update their forks.
 
-1. (First time only) `git submodule add https://github.com/qmk/qmk_firmware.git`
-1. (To update) `git submodule update --init --recursive`
-1. Commit your changes to your userspace repository
+```c
+// 1. define a QK_VIM code
+enum key_codes {
+    QK_VIM = SAFE_RANGE,
+};
+
+// 2. use it in your layout
+
+// 3. call process_record_vim
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    return process_record_vim(keycode, record, QK_VIM);
+}
+```
+### macOS Support
+You can call `vim_set_apple(true)` to switch Vim mode to send macOS shortcuts. This pairs nicely with QMK's
+builtin OS detection:
+```c
+#ifdef OS_DETECTION_ENABLE
+bool process_detected_host_os_user(os_variant_t os) {
+    vim_set_apple(os == OS_MACOS || os == OS_IOS);
+    return true;
+}
+#endif
+```
