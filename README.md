@@ -69,14 +69,17 @@ from your `process_record_user`. For more advanced example, check out
 
 
 ```c
-// 1. define a QK_VIM code
+// 1. include the header
+#include "users/juliekoubova/vim.h"
+
+// 2. define a QK_VIM code
 enum key_codes {
     QK_VIM = SAFE_RANGE,
 };
 
-// 2. use it in your layout
+// 3. use it in your layout
 
-// 3. call process_record_vim
+// 4. call process_record_vim
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return process_record_vim(keycode, record, QK_VIM);
 }
