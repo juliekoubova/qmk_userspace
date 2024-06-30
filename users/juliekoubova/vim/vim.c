@@ -38,12 +38,12 @@ void vim_process_command(uint16_t keycode, const keyrecord_t *record) {
             vim_perform_action(state->action, VIM_SEND_TAP);
         } else if (state->append) {
             vim_append_pending(keycode);
-        } else if (state->repeating) {
+        } else if (state->hold) {
             vim_perform_action(state->action, VIM_SEND_PRESS);
         } else {
             vim_perform_action(state->action, VIM_SEND_TAP);
         }
-    } else if (state->repeating) {
+    } else if (state->hold) {
         vim_perform_action(state->action, VIM_SEND_RELEASE);
     }
 }
