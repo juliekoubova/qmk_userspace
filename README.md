@@ -52,7 +52,7 @@ You just press that key again.
     * ⚠️ it kinda breaks if you start going one direction, then reverse and go
       past the original starting point
 
-### Setup Instructions
+## Setup Instructions
 To try it out, I suggest adding my userspace as a git submodule and linking it
 into your `users` folder. This should work the same whether you use
 [external userspace](https://docs.qmk.fm/newbs_external_userspace), 
@@ -104,3 +104,10 @@ bool process_detected_host_os_user(os_variant_t os) {
 }
 #endif
 ```
+
+## Roadmap
+* I need to make repeats asynchronous, so they can be cancelled without
+  rebooting the keyboard
+* Once that is done, macros: `q` and `@`
+* Maybe `:bn` and `:bp` for `Ctrl`(+`Shift`)+`Tab` vs. `Cmd`+`{`/`}` on Mac
+* what else?
