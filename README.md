@@ -4,28 +4,34 @@ Hey everyone, this is my QMK userspace.
 
 # Vim Mode
 
-Perchance you're interested in my Vim mode. It is pretty comprehensive, if I dare say so myself. I have built it
-for my 60% keyboard, and also to reduce the differences switching between Windows, Linux, and macOS all day long.
+Perchance you're interested in my Vim mode. It is pretty comprehensive, if I dare
+say so myself. I have built it for my 60% keyboard, and also to reduce the differences
+switching between Windows, Linux, and macOS all day long.
 
 It uses a single `QK_VIM` keycode&mdash;I have this mapped on my `Caps Lock` key.
 
-You can either tap the `QK_VIM` key to ~~enter command mode~~ leave insert mode (like `Esc` in actual Vim), 
-or you can hold it like a modifier, and the command mode will disengage once you release it. This is useful
-for simple navigation, e.g. when your keyboard is missing dedicated arrow keys, or you just don't like
+You can either tap the `QK_VIM` key to ~~enter command mode~~ leave insert mode
+(like `Esc` in actual Vim), or you can hold it like a modifier, and the command
+mode will disengage once you release it. This is useful for simple navigation,
+e.g. when your keyboard is missing dedicated arrow keys, or you just don't like
 leaving your home row.
 
-If you enter Vim command mode, exiting is very easy, compared to the real thing. You just press that key again.
+If you enter Vim command mode, exiting is very easy, compared to the real thing.
+You just press that key again.
 
 ## Motions
 * Replace your arrows: `h`, `j`, `k`, `l`
-    * you still want real arrow keys in some layer, if you're sporting 60% or better. Preferably on your left hand.
-    * `QK_VIM`+`h`/`j`/`k`/`l` works great, but you can't combine it modifier keys.
+    * you still want real arrow keys in some layer, if you're sporting 60% or
+      better. Preferably on your left hand.
+    * `QK_VIM`+`h`/`j`/`k`/`l` works great, but you can't combine it modifier
+      keys.
 * Jump over words: `W`, `w`, `B`, `b`
     * sends `Ctrl`+`←`/`→` or `Option`+`←`/`→` in Apple mode
-    * lower and upper case obviously do the same thing, can't do any better in a keyboard
+    * lower and upper case obviously do the same thing
 * Motions can be repeated (e.g. `5j` goes five lines down)
-    * ⚠️ this should be considered experimental, I plan to reimplement this to make it possible to interrupt by pressing a key
-    * if it goes haywire, you'll have to unplug the keyboard for now
+    * ⚠️ this should be considered experimental, I plan to reimplement this to
+      make it possible to interrupt by pressing a key
+    * if it goes haywire, you have to unplug the keyboard for now
 * Line begin and end: `0`, `^`, `$`
     * sends `Home`/`End` or `Cmd`+`←`/`→` on Mac
     * `0` and `^` do the same thing again
@@ -36,19 +42,23 @@ If you enter Vim command mode, exiting is very easy, compared to the real thing.
  
 ## Commands
 * `c`, `d` and `y` do what you would expect. You can repeat them (e.g. `5dw`)
-* `cc`, `dd`, `J`, `o`, `O`, `S`, and `yy` do what you would expect, at least most of the time.
+* `cc`, `dd`, `S`, and `yy` do what you would expect, at least most of the time.
     * ⚠️ They don't play well with soft-wrapped lines.
+* `J`, `o`, and `O` also work
 * `p` and `P` work, but they do the same thing (`Ctrl`/`Cmd`+`V`)
 * `u` sends `Ctrl`/`Cmd`+`Z`
 
 ## Visual and V-Line Modes
-* `v` and `V` put you in visual mode
-    * ⚠️ V-LINE mode kinda breaks if you start going one direction, then reverse and go past  the original starting point
+* `v` puts you in visual mode
+* `V` puts you in v-line mode
+    * ⚠️ it kinda breaks if you start going one direction, then reverse and go
+      past the original starting point
 
 ## Setup Instructions
-To try it out, I suggest adding my userspace as a git submodule and linking it into your `users` folder. 
-This should work the same whether you also have [an external userspace](https://github.com/qmk/qmk_userspace/), 
-or you have forked [qmk_firmware](https://github.com/qmk/qmk_firmware/).
+To try it out, I suggest adding my userspace as a git submodule and linking it
+into your `users` folder. This should work the same whether you use
+[external userspace](https://docs.qmk.fm/newbs_external_userspace), 
+or you have forked [the main repo](https://github.com/qmk/qmk_firmware/).
 
 ```shell
 $ mkdir submodules
@@ -63,8 +73,9 @@ VIM_MODE_ENABLE = yes
 include users/juliekoubova/rules.mk
 ```
 
-All that remains is to define a `QK_VIM` key, include it in your keymap, and call `process_record_vim`
-from your `process_record_user`. For more advanced example, check out 
+All that remains is to define a `QK_VIM` key, include it in your keymap, and
+call `process_record_vim` from your `process_record_user`. For a more advanced
+example, including RGB gamer vomit on mapped keys, check out 
 [my Keychron Q4 keymap](https://github.com/juliekoubova/qmk_userspace/blob/main/keyboards/keychron/q4/ansi/keymaps/juliekoubova/keymap.c).
 
 
@@ -85,7 +96,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 ```
 ### macOS Support
-You can call `vim_set_apple(true)` to switch Vim mode to send macOS shortcuts. This pairs nicely with QMK's
+You can call `vim_set_apple(true)` to tell Vim mode to send macOS shortcuts. This pairs nicely with QMK's
 builtin OS detection:
 ```c
 #ifdef OS_DETECTION_ENABLE
