@@ -21,34 +21,27 @@
 #define VIM_TAP_DELAY 30
 
 void vim_send(uint16_t code16, vim_send_type_t type) {
-    uint8_t mods = QK_MODS_GET_MODS(code16);
+    uint8_t mods    = QK_MODS_GET_MODS(code16);
     uint8_t keycode = QK_MODS_GET_BASIC_KEYCODE(code16);
 
-    if (mods && (type == VIM_SEND_PRESS || type == VIM_SEND_TAP)) {
-        VIM_DPRINTF("register mods=%x\n", mods);
-        register_mods(mods);
-    }
-
-    switch (type) {
-        case VIM_SEND_TAP:
-            VIM_DPRINTF("tap keycode=%x\n", keycode);
-            tap_code_delay(keycode, VIM_TAP_DELAY);
-            break;
-        case VIM_SEND_PRESS:
-            VIM_DPRINTF("register keycode=%x\n", keycode);
-            register_code(keycode);
+    if (type & VIM_SEND_PRESS) {
+        if (mods) {
+            VIM_DPRINTF("register mods=%x\n", mods);
+            register_mods(mods);
+        }
+        VIM_DPRINTF("register keycode=%x\n", keycode);
+        register_code(keycode);
+        if (type & VIM_SEND_RELEASE) {
             wait_ms(VIM_TAP_DELAY);
-            break;
-        case VIM_SEND_RELEASE:
-            VIM_DPRINTF("unregister keycode=%x\n", keycode);
-            unregister_code(keycode);
-            wait_ms(VIM_TAP_DELAY);
-            break;
+        }
     }
-
-    if (mods && (type == VIM_SEND_RELEASE || type == VIM_SEND_TAP)) {
-        VIM_DPRINTF("unregister mods=%x\n", mods);
-        unregister_mods(mods);
+    if (type & VIM_SEND_RELEASE) {
+        VIM_DPRINTF("unregister keycode=%x\n", keycode);
+        unregister_code(keycode);
+        if (mods) {
+            VIM_DPRINTF("unregister mods=%x\n", mods);
+            unregister_mods(mods);
+        }
     }
 }
 
