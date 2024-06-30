@@ -218,6 +218,12 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         }
     }
 
+    if (action & VIM_MOD_DELETE) {
+        vim_send(command_mods | KC_X, VIM_SEND_TAP);
+    } else if (action & VIM_MOD_YANK) {
+        vim_send(command_mods | KC_C, VIM_SEND_TAP);
+    }
+
     // Selecting the whole line leaves us on the beginning of the next one.
     // The line is still there after yanking, we need to return to it and also
     // get rid of the selection.
@@ -225,11 +231,6 @@ void vim_perform_action(vim_action_t action, vim_send_type_t type) {
         vim_send(KC_LEFT, VIM_SEND_TAP);
     }
 
-    if (action & VIM_MOD_DELETE) {
-        vim_send(command_mods | KC_X, VIM_SEND_TAP);
-    } else if (action & VIM_MOD_YANK) {
-        vim_send(command_mods | KC_C, VIM_SEND_TAP);
-    }
 
     VIM_DPRINTF("vim_perform_action %x\n", action);
     vim_enter_mode(VIM_MODE_FROM_ACTION(action));
