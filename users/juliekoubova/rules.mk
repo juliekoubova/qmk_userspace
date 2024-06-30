@@ -1,8 +1,9 @@
 ifeq ($(strip $(VIM_MODE_ENABLE)), yes)
-  SRC += users/juliekoubova/vim/vim.c
-  SRC += users/juliekoubova/vim/vim_mode.c
-  SRC += users/juliekoubova/vim/vim_send.c
-  SRC += users/juliekoubova/vim/pending.c
-  SRC += users/juliekoubova/vim/perform_action.c
-  SRC += users/juliekoubova/vim/statemachine.c
+  SRC += vim/pending.c
+  SRC += vim/perform_action.c
+  SRC += vim/sequence.c
+  SRC += vim/statemachine.c
+  SRC += vim/vim.c
+  SRC += vim/vim_mode.c
+  SRC += vim/vim_send.c
 endif
