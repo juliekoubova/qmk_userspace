@@ -1,0 +1,3 @@
+CONVERT_TO = helios
+BOOTLOADER = rp2040
+
